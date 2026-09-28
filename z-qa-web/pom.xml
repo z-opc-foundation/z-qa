@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- ${revision} ONLY inside <parent>.version, NOT at project level -->
+    <parent>
+        <groupId>io.github.yuku123</groupId>
+        <artifactId>z-qa</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <artifactId>z-qa-web</artifactId>
+    <packaging>jar</packaging>
+    <name>z-qa-web (Spring Boot AutoConfiguration + module datasource wiring)</name>
+    <description>
+        Z-QA Web 层: QaAutoConfiguration（@ComponentScan com.zifang.z.qa.web / com.zifang.z.qa.admin,
+        经 META-INF/spring.factories 注册 EnableAutoConfiguration）+ QaModuleDataSource
+        （z.base.db.qa.* 独立库, key = "qa"）+ @MapperScan(sqlSessionFactoryRef = "sqlSessionFactoryQa")。
+        宿主应用 import 本模块即得到全套 /api/qa/** 端点，无需 @ComponentScan。
+    </description>
+
+    <url>https://github.com/z-opc-foundation/z-qa/tree/main/z-qa-web</url>
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/licenses/MIT</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <id>yuku123</id>
+            <name>yuku123</name>
+            <email>1340947819@qq.com</email>
+            <organization>z-opc-foundation</organization>
+            <organizationUrl>https://github.com/z-opc-foundation</organizationUrl>
+            <timezone>+08:00</timezone>
+            <roles>
+                <role>owner</role>
+            </roles>
+        </developer>
+    </developers>
+    <scm>
+        <connection>scm:git:https://github.com/z-opc-foundation/z-qa.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/z-opc-foundation/z-qa.git</developerConnection>
+        <url>https://github.com/z-opc-foundation/z-qa</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.github.yuku123</groupId>
+            <artifactId>z-qa-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.github.yuku123</groupId>
+            <artifactId>z-boot-web-starter</artifactId>
+        </dependency>
+    </dependencies>
+</project>

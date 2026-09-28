@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.zifang.z.qa.web.config.QaAutoConfiguration

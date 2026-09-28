@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zifang.z.qa.admin.domain.mapper.QaSuiteStepMapper">
+    <resultMap id="BaseResultMap" type="com.zifang.z.qa.admin.domain.entity.QaSuiteStepDO">
+        <id column="id" property="id"/>
+        <result column="suite_id" property="suiteId"/>
+        <result column="step_no" property="stepNo"/>
+        <result column="step_name" property="stepName"/>
+        <result column="execution_mode" property="executionMode"/>
+        <result column="method" property="method"/>
+        <result column="url" property="url"/>
+        <result column="headers_json" property="headersJson"/>
+        <result column="body" property="body"/>
+        <result column="target_mode" property="targetMode"/>
+        <result column="mock_endpoint" property="mockEndpoint"/>
+        <result column="extract_rules" property="extractRules"/>
+        <result column="assert_rules" property="assertRules"/>
+        <result column="timeout_ms" property="timeoutMs"/>
+        <result column="retry_count" property="retryCount"/>
+        <result column="tenant_code" property="tenantCode"/>
+    </resultMap>
+
+    <select id="selectBySuiteId" resultMap="BaseResultMap">
+        SELECT *
+        FROM z_qa_suite_step
+        WHERE suite_id = #{suiteId}
+        ORDER BY step_no ASC
+    </select>
+</mapper>

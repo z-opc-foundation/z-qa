@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- ${revision} ONLY inside <parent>.version, NOT at project level -->
+    <parent>
+        <groupId>io.github.yuku123</groupId>
+        <artifactId>z-qa</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <artifactId>z-qa-core</artifactId>
+    <packaging>jar</packaging>
+    <name>z-qa-core (Test Platform Domain: entity / mapper / service / engine)</name>
+    <description>
+        Z-QA 核心层: 用例/套件/计划/环境/执行的 entity + mapper + service,
+        以及单一执行引擎（QaExecutionDispatcher 建 run 行 → QaRunRunner 异步跑步骤,
+        ApiStepExecutor 走 HTTP 链路, QaFailureClassifier 十态状态机 + 缺陷三分类 +
+        retry/failFast/abort 语义）。附带 DDL 与自检 SQL 于 db/ 资源目录。
+    </description>
+
+    <url>https://github.com/z-opc-foundation/z-qa/tree/main/z-qa-core</url>
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/licenses/MIT</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <id>yuku123</id>
+            <name>yuku123</name>
+            <email>1340947819@qq.com</email>
+            <organization>z-opc-foundation</organization>
+            <organizationUrl>https://github.com/z-opc-foundation</organizationUrl>
+            <timezone>+08:00</timezone>
+            <roles>
+                <role>owner</role>
+            </roles>
+        </developer>
+    </developers>
+    <scm>
+        <connection>scm:git:https://github.com/z-opc-foundation/z-qa.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/z-opc-foundation/z-qa.git</developerConnection>
+        <url>https://github.com/z-opc-foundation/z-qa</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <dependencies>
+        <!-- Log4j2 API (本模块 src/main/java 含 LogManager.getLogger 调用) -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+        </dependency>
+
+        <!-- z-boot starters: 提供 web/datasource 的默认装配 + 版本口径 -->
+        <dependency>
+            <groupId>io.github.yuku123</groupId>
+            <artifactId>z-boot-web-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.yuku123</groupId>
+            <artifactId>z-boot-datasource-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- FEATURE052 Phase 5: 通知 (站内消息 + 邮件) -->
+        <dependency>
+            <groupId>io.github.yuku123</groupId>
+            <artifactId>z-msg-core</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+                <!-- z-msg-core -> z-util-core 自带 SLF4J 2.x 绑定；本栈是 Spring Boot 2.7 =
+                     slf4j-api 1.7.36，只能留 log4j-slf4j-impl。两个 jar 共用
+                     org.apache.logging.slf4j 包名，谁先上 classpath 谁赢，输的那个的
+                     StaticLoggerBinder 会去 new 一个已被删掉的无参构造器。 -->
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-slf4j2-impl</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- z-boot-msg-starter: 自动装配 MessageGateway / EmailSender Bean -->
+        <dependency>
+            <groupId>io.github.yuku123</groupId>
+            <artifactId>z-boot-msg-starter</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- FEATURE052 Phase 7: E2E 录制产物 (截图/视频/Trace/HAR → OSS) -->
+        <dependency>
+            <groupId>io.github.yuku123</groupId>
+            <artifactId>z-oss-core</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- z-util-parser-json (替换 fastjson: 提供 JsonUtil + JsonObject + JsonArray) -->
+        <dependency>
+            <groupId>io.github.yuku123</groupId>
+            <artifactId>z-util-parser-json</artifactId>
+        </dependency>
+
+        <!-- FEATURE052 单元测试 (JUnit Jupiter) -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- 只有 api 没有 engine 时 surefire 会「0 个测试」静默通过,发布物等于没测过 -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

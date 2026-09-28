@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zifang.z.qa.admin.domain.mapper.QaRunDetailMapper">
+    <resultMap id="BaseResultMap" type="com.zifang.z.qa.admin.domain.entity.QaRunDetailDO">
+        <id column="id" property="id"/>
+        <result column="run_id" property="runId"/>
+        <result column="step_no" property="stepNo"/>
+        <result column="step_name" property="stepName"/>
+        <result column="mock_endpoint_code" property="mockEndpointCode"/>
+        <result column="target_mode" property="targetMode"/>
+        <result column="template_request" property="templateRequest"/>
+        <result column="extractions" property="extractions"/>
+        <result column="method" property="method"/>
+        <result column="request_url" property="requestUrl"/>
+        <result column="request_headers" property="requestHeaders"/>
+        <result column="request_body" property="requestBody"/>
+        <result column="response_status" property="responseStatus"/>
+        <result column="response_headers" property="responseHeaders"/>
+        <result column="response_body" property="responseBody"/>
+        <result column="variables_before" property="variablesBefore"/>
+        <result column="variables_after" property="variablesAfter"/>
+        <result column="extracted_vars" property="extractedVars"/>
+        <result column="assert_results" property="assertResults"/>
+        <result column="result" property="result"/>
+        <result column="suite_id" property="suiteId"/>
+        <result column="defect_type" property="defectType"/>
+        <result column="error_message" property="errorMessage"/>
+        <result column="duration_ms" property="durationMs"/>
+        <result column="retry_count" property="retryCount"/>
+        <result column="tenant_code" property="tenantCode"/>
+    </resultMap>
+
+    <!-- 按 id 而非 step_no:计划 run 里多个套件的 step_no 会重复，只有插入序才是真实执行序 -->
+    <select id="selectByRunId" resultMap="BaseResultMap">
+        SELECT *
+        FROM z_qa_run_detail
+        WHERE run_id = #{runId}
+        ORDER BY id ASC
+    </select>
+
+    <!-- Top 失败步骤聚合 (FEATURE052 §6.5)
+         失败态是 fail_ 前缀的六种，用前缀匹配而非枚举 IN 列表，新增失败态不必改这里 -->
+    <select id="topFailures" resultType="java.util.Map">
+        SELECT step_no, step_name, defect_type, COUNT(*) AS fail_count, MAX(gmt_create) AS last_seen
+        FROM z_qa_run_detail
+        WHERE LEFT(result, 5) = 'fail_'
+        GROUP BY step_no, step_name, defect_type
+        ORDER BY fail_count DESC, last_seen DESC
+            LIMIT #{limit}
+    </select>
+</mapper>

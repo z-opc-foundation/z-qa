@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zifang.z.qa.admin.domain.mapper.QaRunMapper">
+    <resultMap id="BaseResultMap" type="com.zifang.z.qa.admin.domain.entity.QaRunDO">
+        <id column="id" property="id"/>
+        <result column="run_code" property="runCode"/>
+        <result column="plan_id" property="planId"/>
+        <result column="suite_id" property="suiteId"/>
+        <result column="name" property="name"/>
+        <result column="trigger_type" property="triggerType"/>
+        <result column="status" property="status"/>
+        <result column="total_steps" property="totalSteps"/>
+        <result column="passed_steps" property="passedSteps"/>
+        <result column="failed_steps" property="failedSteps"/>
+        <result column="duration_ms" property="durationMs"/>
+        <result column="started_at" property="startedAt"/>
+        <result column="finished_at" property="finishedAt"/>
+        <result column="error_message" property="errorMessage"/>
+        <result column="trigger_user" property="triggerUser"/>
+        <result column="env_code" property="envCode"/>
+        <result column="env_base_url" property="envBaseUrl"/>
+        <result column="callback_url" property="callbackUrl"/>
+        <result column="abort_requested" property="abortRequested"/>
+        <result column="tenant_code" property="tenantCode"/>
+        <result column="gmt_create" property="gmtCreate"/>
+    </resultMap>
+
+    <!-- 状态分组计数 -->
+    <select id="countByStatus" resultType="java.util.Map">
+        SELECT status, COUNT(*) AS cnt
+        FROM z_qa_run
+        <where>
+            <if test="tenantCode != null and tenantCode != ''">
+                AND tenant_code = #{tenantCode}
+            </if>
+        </where>
+        GROUP BY status
+    </select>
+
+    <!-- passed_steps 求和 -->
+    <select id="sumPassed" resultType="java.lang.Long">
+        SELECT IFNULL(SUM(passed_steps), 0)
+        FROM z_qa_run
+    </select>
+
+    <!-- total_steps 求和 -->
+    <select id="sumTotal" resultType="java.lang.Long">
+        SELECT IFNULL(SUM(total_steps), 0)
+        FROM z_qa_run
+    </select>
+</mapper>
