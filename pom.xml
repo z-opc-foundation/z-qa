@@ -71,7 +71,7 @@
 
     <properties>
         <!-- CI-friendly 版本根 (发版改这一处即可) -->
-        <revision>1.0.0</revision>
+        <revision>1.0.1</revision>
 
         <!-- 与父链同值、已删的键（连同引用它们的 <version> 一起删）：
              maven.compiler.source 8 / maven.compiler.target 8 / project.build.sourceEncoding UTF-8
