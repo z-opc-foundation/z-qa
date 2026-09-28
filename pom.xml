@@ -5,19 +5,26 @@
     <modelVersion>4.0.0</modelVersion>
 
     <!--
-        z-qa 自包含 parent — 不依赖 monorepo 内部 parent，
-        坐标改造为 io.github.yuku123 namespace (Maven Central 命名空间)。
-        使用 ${revision} (CI-friendly versions) + flatten-maven-plugin 发版自动替换。
+        z-qa 自包含坐标：groupId 是 io.github.yuku123 (Maven Central 命名空间)，
+        版本根用 ${revision} (CI-friendly) + 常开 flatten(oss) ⇒ 入库/发布件落成字面量、
+        <parent> 被剥掉（现读 repo1 的 1.0.0：z-qa / z-qa-core / z-qa-web 三份 pom 的 <parent> 计数全为 0）。
+
+        2026-09-29 起消费入口走 io.github.yuku123:z-boot-parent:1.0.19（全组织口径）：
+        第三方地板 z-boot-dependencies + 兄弟仓权威 z-boot-fleet + Java 8 的 pluginManagement。
+        relativePath 必须留空：parent 不在磁盘上，在 repo1。
 
         模块结构:
           - z-qa-core : 套件/计划/执行引擎 (QaExecutionDispatcher + QaRunRunner + ApiStepExecutor
                         + QaFailureClassifier + QaStepStatus) + entity/mapper/service + DDL
           - z-qa-web  : Spring Boot Controller 层 + AutoConfiguration (spring.factories)
-
-        2026-09-28 从 z-opc monorepo 迁出。迁出口径「零版本漂移」:
-        下面锁的 z-boot-*/z-msg/z-oss/z-util 版本 = 迁出前 z-opc 根 pom dependencyManagement
-        实际喂给 z-qa 的那一份，运行进程里的字节没变。收敛到 z-boot 1.0.18 线是后续单独一次改动。
     -->
+    <parent>
+        <groupId>io.github.yuku123</groupId>
+        <artifactId>z-boot-parent</artifactId>
+        <version>1.0.19</version>
+        <relativePath/>
+    </parent>
+
     <groupId>io.github.yuku123</groupId>
     <artifactId>z-qa</artifactId>
     <version>${revision}</version>
@@ -66,51 +73,27 @@
         <!-- CI-friendly 版本根 (发版改这一处即可) -->
         <revision>1.0.0</revision>
 
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <spring-boot.version>2.7.18</spring-boot.version>
-        <log4j2.version>2.25.4</log4j2.version>
-        <mybatis-plus.version>3.5.7</mybatis-plus.version>
-
-        <!-- 内部依赖 (与迁出前 z-opc 根 pom 喂给 z-qa 的版本一致) -->
-        <z-boot-starter.version>1.0.3</z-boot-starter.version>
-        <z-boot-msg-starter.version>1.0.11</z-boot-msg-starter.version>
-        <z-msg.version>1.0.0</z-msg.version>
-        <z-oss.version>1.0.2</z-oss.version>
-        <z-util.version>1.0.13</z-util.version>
-
-        <!-- Maven 插件版本 -->
-        <flatten-maven-plugin.version>1.7.3</flatten-maven-plugin.version>
+        <!-- 与父链同值、已删的键（连同引用它们的 <version> 一起删）：
+             maven.compiler.source 8 / maven.compiler.target 8 / project.build.sourceEncoding UTF-8
+             spring-boot.version 2.7.18 / log4j2.version 2.25.4 / mybatis-plus.version 3.5.7
+             z-util.version 1.0.13 —— 父链面值逐格相同，改由 parent 下发。
+             ⚠ 键虽然删了，下面 flatten 那行对 ${flatten-maven-plugin.version} 的引用仍解析得到
+             （父链供这一格 1.7.3，就是给消费方留的兜底）。 -->
+        <!-- 父链不供（键与坐标都没有），留着： -->
         <maven-enforcer-plugin.version>3.4.1</maven-enforcer-plugin.version>
         <central-publishing-maven-plugin.version>0.7.0</central-publishing-maven-plugin.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-            <!-- Log4j2 BOM 必须排在 spring-boot-dependencies 之前：多个 import BOM 冲突时
-                 Maven 取"先声明者"，而 ${log4j2.version} 属性覆写只对 parent 生效、对 import
-                 进来的 BOM 无效。放在后面会让 log4j-api/core 被 Boot 拉回旧版，而 Boot 不认识的
-                 log4j-slf4j2-impl 仍是 ${log4j2.version} —— 同一份 org.apache.logging.slf4j
-                 包出现两个版本，启动即 NoSuchMethodError。 -->
+            <!-- 自家 reactor 坐标逐条钉 ${project.version}：fleet 里 z-qa 命中 0 条，不钉的话
+                 继承来的 DM 会改写传递依赖的版本，把 repo1 的旧发布件打进本仓的包里。 -->
             <dependency>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-bom</artifactId>
-                <version>${log4j2.version}</version>
+                <groupId>io.github.yuku123</groupId>
+                <artifactId>z-qa</artifactId>
+                <version>${project.version}</version>
                 <type>pom</type>
-                <scope>import</scope>
             </dependency>
-
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring-boot.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
-            <!-- 本仓 module -->
             <dependency>
                 <groupId>io.github.yuku123</groupId>
                 <artifactId>z-qa-core</artifactId>
@@ -122,59 +105,32 @@
                 <version>${project.version}</version>
             </dependency>
 
-            <!-- z-boot starters -->
-            <dependency>
-                <groupId>io.github.yuku123</groupId>
-                <artifactId>z-boot-web-starter</artifactId>
-                <version>${z-boot-starter.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.github.yuku123</groupId>
-                <artifactId>z-boot-datasource-starter</artifactId>
-                <version>${z-boot-starter.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.github.yuku123</groupId>
-                <artifactId>z-boot-msg-starter</artifactId>
-                <version>${z-boot-msg-starter.version}</version>
-            </dependency>
+            <!-- 以下坐标改由父链下发，本仓那 9 条 DM 条目连同属性键一并删除：
+                 z-boot-web-starter / z-boot-datasource-starter 本仓 1.0.3 → 父链 1.0.19（ranged GET 206）
+                 z-boot-msg-starter 本仓 1.0.11 → 父链 1.0.19（206）
+                 z-msg-core 本仓 1.0.0 → fleet 1.2.1（206）
+                 z-oss-core 本仓 1.0.2 → fleet 1.0.3（206）
+                 z-util-core / -aop / -dsl / -parser-json 本仓 1.0.13 = fleet 1.0.13
+                 com.baomidou:mybatis-plus-boot-starter 本仓 3.5.7 = 地板 3.5.7
+                 ⚠ z-boot 那三格必须一起走：web/datasource 若自留在 1.0.3，本仓 DM 会直接把
+                 z-boot-msg-starter:1.0.19 传递依赖的 web-starter 压回 1.0.3 —— 新 starter 配旧字节码。
+                 两条 BOM import（log4j-bom、spring-boot-dependencies）删掉：地板已按坐标把
+                 log4j-api/core/jul/slf4j-impl/to-slf4j 钉在 2.25.4（与本仓同值），
+                 并 import 了同一个 spring-boot-dependencies:2.7.18。 -->
 
-            <!-- z-msg / z-oss / z-util -->
+            <!-- 父链会把这两格**往回**压，按坐标写直接条目压住（口径同 z-kb、z-schedule）：
+                 mybatis-spring 本仓基线 2.1.2（mybatis-plus-boot-starter 3.5.7 自带）vs 地板 2.0.6；
+                 mysql-connector-j 本仓基线 8.0.33 vs 地板 8.4.0（8.4 换 driver 行为，且带进
+                 com.google.protobuf:protobuf-java 一整件新传递依赖）。 -->
             <dependency>
-                <groupId>io.github.yuku123</groupId>
-                <artifactId>z-msg-core</artifactId>
-                <version>${z-msg.version}</version>
+                <groupId>org.mybatis</groupId>
+                <artifactId>mybatis-spring</artifactId>
+                <version>2.1.2</version>
             </dependency>
             <dependency>
-                <groupId>io.github.yuku123</groupId>
-                <artifactId>z-oss-core</artifactId>
-                <version>${z-oss.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.github.yuku123</groupId>
-                <artifactId>z-util-parser-json</artifactId>
-                <version>${z-util.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.github.yuku123</groupId>
-                <artifactId>z-util-core</artifactId>
-                <version>${z-util.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.github.yuku123</groupId>
-                <artifactId>z-util-aop</artifactId>
-                <version>${z-util.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.github.yuku123</groupId>
-                <artifactId>z-util-dsl</artifactId>
-                <version>${z-util.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.baomidou</groupId>
-                <artifactId>mybatis-plus-boot-starter</artifactId>
-                <version>${mybatis-plus.version}</version>
+                <groupId>com.mysql</groupId>
+                <artifactId>mysql-connector-j</artifactId>
+                <version>8.0.33</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -217,6 +173,9 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- 常开（不挂 central profile）：本仓发的是自包含 pom，parent 那条 flatten 是
+                 inherited=false、不下发，所以这条必须留着，形状才和 repo1 上的 1.0.0 一致。
+                 版本键已删，${flatten-maven-plugin.version} 由父链解析（1.7.3）。 -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
@@ -224,7 +183,7 @@
                 <configuration>
                     <updatePomFile>true</updatePomFile>
                     <!-- oss 模式: 子 POM 完全 self-contained，自定义 ${xxx} 属性也会解析，
-                         url/licenses/developers/scm 元数据保留 -->
+                         url/licenses/developers/scm 元数据保留，<parent> 被剥掉 -->
                     <flattenMode>oss</flattenMode>
                 </configuration>
                 <executions>
@@ -244,16 +203,8 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
-                <configuration>
-                    <source>${maven.compiler.source}</source>
-                    <target>${maven.compiler.target}</target>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                </configuration>
-            </plugin>
+            <!-- maven-compiler-plugin 的声明删掉：父链 pluginManagement 供 3.11.0 +
+                 source/target 8 + UTF-8 + -parameters（本仓原来那份没有 -parameters）。 -->
         </plugins>
     </build>
 
