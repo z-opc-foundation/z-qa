@@ -16,8 +16,8 @@
 #   ./deploy_maven_center.sh verify
 #
 # 设计原则（沿用 z-msg / z-boot / z-schedule 的口径）：
-#   - 所有凭证从 ./.env 读，.env 与 .gnupg 已被 .gitignore 排除
-#   - GPG 密钥环用 GNUPGHOME=./.gnupg，不污染 ~/.gnupg
+#   - 凭证不在本仓：按 ./.env → ../z-boot/.env → ../z-schedule/.env 顺序找，
+#     GNUPGHOME 同样指向上游密钥环（副本越少越好）。本仓真建了 .env/.gnupg 也已被 .gitignore 排除
 #   - 默认不做任何事情，必须显式给子命令
 #
 # ⚠️ 关键约束（都是实测踩过的坑，见 z-msg/deploy_maven_center.sh 头注）：
@@ -42,14 +42,38 @@ cd "$(dirname "$0")"
 VERSION=$(grep -m1 '<revision>' pom.xml | sed 's/.*<revision>\(.*\)<\/revision>.*/\1/')
 ARTIFACTS=(z-qa z-qa-core z-qa-web)
 
-load_env() {
-    [[ -f .env ]] || die ".env 不存在。首次发布请先跑：./deploy_maven_center.sh gpg-init（或从 z-schedule/.env 复制）"
-    # shellcheck disable=SC1091
-    set -a; source .env; set +a
+# 凭证唯一源在 z-boot / z-schedule / z-config 三个仓（台账 z-opc-foundation-lead/004_重要秘钥）。
+# 本仓不复制一份 .env / .gnupg 出来 —— 明文凭据与私钥环每多一处副本就多一处泄露面。
+# 仓库根若真有一份 ./.env（本机调试用），它优先，方便不发上游凭证。
+find_env_file() {
+    if [[ -f ./.env ]]; then echo "./.env"; return; fi
+    for up in ../z-boot ../z-schedule ../z-config; do
+        [[ -f "$up/.env" ]] && { echo "$up/.env"; return; }
+    done
+    echo ""
+}
 
-    [[ -n "${CENTRAL_USERNAME:-}"        ]] || die ".env 缺 CENTRAL_USERNAME"
-    [[ -n "${CENTRAL_TOKEN:-}"           ]] || die ".env 缺 CENTRAL_TOKEN"
-    [[ -n "${CENTRAL_GPG_PASSPHRASE:-}"  ]] || die ".env 缺 CENTRAL_GPG_PASSPHRASE（先跑 gpg-init）"
+find_gnupg_home() {
+    if [[ -d ./.gnupg ]]; then echo "$PWD/.gnupg"; return; fi
+    for up in ../z-boot ../z-schedule ../z-config; do
+        if [[ -d "$up/.gnupg" ]]; then
+            (cd "$up/.gnupg" && pwd)
+            return
+        fi
+    done
+    echo ""
+}
+
+load_env() {
+    local env_file; env_file=$(find_env_file)
+    [[ -n "$env_file" ]] || die "找不到 .env（本仓 ./.env 或 ../z-boot/.env）。台账见 z-opc-foundation-lead/004_重要秘钥"
+    log "凭证来源: $env_file"
+    # shellcheck disable=SC1091
+    set -a; source "$env_file"; set +a
+
+    [[ -n "${CENTRAL_USERNAME:-}"        ]] || die "$env_file 缺 CENTRAL_USERNAME"
+    [[ -n "${CENTRAL_TOKEN:-}"           ]] || die "$env_file 缺 CENTRAL_TOKEN"
+    [[ -n "${CENTRAL_GPG_PASSPHRASE:-}"  ]] || die "$env_file 缺 CENTRAL_GPG_PASSPHRASE"
 
     export CENTRAL_USERNAME CENTRAL_TOKEN CENTRAL_GPG_PASSPHRASE
 }
@@ -61,8 +85,10 @@ check_deps() {
     [[ -f ~/.m2/settings.xml ]] || die "~/.m2/settings.xml 不存在"
     grep -q '<id>central</id>' ~/.m2/settings.xml || die "~/.m2/settings.xml 缺 <server id=\"central\">"
 
-    [[ -d ./.gnupg ]] || { warn "未找到 ./.gnupg，请先跑 gpg-init（或从 z-schedule/.gnupg 复制）"; exit 1; }
-    export GNUPGHOME="$PWD/.gnupg"
+    local gpg_home; gpg_home=$(find_gnupg_home)
+    [[ -n "$gpg_home" ]] || die "找不到 .gnupg 密钥环（本仓 ./.gnupg 或 ../z-boot/.gnupg）"
+    log "GPG 密钥环: $gpg_home"
+    export GNUPGHOME="$gpg_home"
 }
 
 cmd_gpg_init() {
@@ -129,8 +155,12 @@ cmd_publish() {
 
     # 日志不放 /tmp：这台机器上会有别的会话清 /tmp，出问题时唯一证据就没了。
     local deploy_log="$HOME/.cache/z-qa-deploy.log"
+    # -U + legacyLocalRepo: ~/.m2 里的 io.github.yuku123 构件多半是从 mvn.seenew.info
+    # (settings.xml 的 active profile "public") 拉的，那个仓会 404 掉一部分 yuku123 发布，
+    # 不带这两个参数会拿"缓存的解析失败"直接死在依赖图上。
     mvn -B deploy \
         -Pcentral \
+        -U -Dmaven.legacyLocalRepo=true \
         -Dgpg.passphrase="$CENTRAL_GPG_PASSPHRASE" \
         2>&1 | tee "$deploy_log" | tail -100
 
@@ -170,14 +200,13 @@ cmd_readme() {
 ═══════════════════════════════════════════════════════════════
 
 【前置（人工，一次性）】
-  1. 登录 https://central.sonatype.com/ → Profile → Generate User Token
-     把 Username + Secret 写到 ./.env（**不要贴到对话里**）
-     本机已有同源台账：z-opc-foundation-lead/004_重要秘钥，
-     也可以直接 cp ../z-schedule/.env ../z-schedule/.gnupg 过来
+  1. 凭证不在本仓。唯一源是 ../z-boot / ../z-schedule / ../z-config 的 .env + .gnupg
+     （台账 z-opc-foundation-lead/004_重要秘钥）。脚本会按 ./.env → ../z-boot/.env 的顺序找，
+     找不到再考虑在本仓建 .env —— 每多一处明文副本就多一处泄露面。
   2. namespace io.github.yuku123 已验证过，无需重复
   3. brew install gnupg（如果还没装）
 
-【首次发布】
+【首次发布（仅当上游没有可用密钥环时）】
   $ ./deploy_maven_center.sh gpg-init
 
 【日常发布流】
@@ -206,6 +235,6 @@ case "${1:-publish}" in
     verify)    cmd_verify ;;
     gpg-init)  cmd_gpg_init ;;
     readme)    cmd_readme ;;
-    help|-h|--help) sed -n '2,26p' "$0" ;;
+    help|-h|--help) sed -n '2,16p' "$0" ;;
     *) die "未知子命令：$1（用 help 看用法）" ;;
 esac

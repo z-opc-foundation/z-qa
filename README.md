@@ -114,15 +114,19 @@ POST /api/qa/plan/run  或  定时触发
 
 ## 发布到 Maven Central
 
+凭证**不在本仓**：唯一源是同级仓库 `z-boot` / `z-schedule` / `z-config` 的 `.env` + `.gnupg`
+（台账 `z-opc-foundation-lead/004_重要秘钥`）。脚本按 `./.env` → `../z-boot/.env` 的顺序找。
+
 ```bash
-cp ../z-schedule/.env .            # 或从 z-opc-foundation-lead/004_重要秘钥 取
-cp -R ../z-schedule/.gnupg .
-./deploy_maven_center.sh gpg-init  # 仅首次
-./deploy_maven_center.sh publish
-./deploy_maven_center.sh verify
+./deploy_maven_center.sh publish     # mvn -B deploy -Pcentral -U -Dmaven.legacyLocalRepo=true
+./deploy_maven_center.sh verify      # 约 30 分钟后，以 repo1 的 HEAD 状态码为准
+./deploy_maven_center.sh readme      # 完整指引摘要
 ```
 
 版本号只有根 pom 的 `<revision>` 一处，子 pom 一律 `${revision}`，
 `flatten-maven-plugin`（`oss` 模式）在发布时展开成 self-contained 的子 POM。
 
-⚠️ 已发布的版本号永久占位，不可覆盖、不可删除。发布那一遍不要加 `-DskipTests`。
+⚠️ 已发布的版本号永久占位，不可覆盖、不可删除。发布那遍不要加 `-DskipTests`。
+
+1.0.0 已发布（2026-09-28，deploymentId `516611e0-2f1a-48c9-98aa-9b4930e72731`）：
+`z-qa` (pom) + `z-qa-core` + `z-qa-web`，每个都带 jar/pom/-sources.jar/-javadoc.jar/.asc。
