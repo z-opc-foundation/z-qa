@@ -79,7 +79,7 @@
         <z-boot-msg-starter.version>1.0.11</z-boot-msg-starter.version>
         <z-msg.version>1.0.0</z-msg.version>
         <z-oss.version>1.0.2</z-oss.version>
-        <z-util.version>1.0.10</z-util.version>
+        <z-util.version>1.0.13</z-util.version>
 
         <!-- Maven 插件版本 -->
         <flatten-maven-plugin.version>1.7.3</flatten-maven-plugin.version>
