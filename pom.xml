@@ -155,6 +155,21 @@
                 <artifactId>z-util-parser-json</artifactId>
                 <version>${z-util.version}</version>
             </dependency>
+            <dependency>
+                <groupId>io.github.yuku123</groupId>
+                <artifactId>z-util-core</artifactId>
+                <version>${z-util.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.yuku123</groupId>
+                <artifactId>z-util-aop</artifactId>
+                <version>${z-util.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.yuku123</groupId>
+                <artifactId>z-util-dsl</artifactId>
+                <version>${z-util.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>com.baomidou</groupId>
