@@ -172,27 +172,32 @@ z-qa 用独立数据源（Bean 名 `dataSourceQa` / `sqlSessionFactoryQa`），�
 
 | 路径 | 方法 | 归属 |
 |------|------|------|
-| `/api/qa/case/list`、`/add`、`/update`、`/remove` | 全部 **POST**（`remove` 取 `?id=`） | 用例 |
-| `/api/qa/suite/list`、`/get`、`/steps` | GET（`get` 取 `?id=`，`steps` 取 `?suiteId=`） | 套件 |
-| `/api/qa/suite/add`、`/update`、`/remove`、`/steps/save` | POST | 套件 |
-| `/api/qa/plan/list`、`/get` | GET | 计划 |
+| `/api/qa/case/list` | POST（请求体取 `keyword`/`priority`/`category`） | 用例 |
+| `/api/qa/case/add`、`/update`（请求体 = `QaCaseDO`）、`/remove`（`?id=`） | POST | 用例 |
+| `/api/qa/suite/list` | GET（可选 `keyword`、`category`） | 套件 |
+| `/api/qa/suite/get`（`?id=`）、`/steps`（`?suiteId=`） | GET | 套件 |
+| `/api/qa/suite/add`、`/update`、`/remove` | POST | 套件 |
+| `/api/qa/suite/steps/save` | POST（`?suiteId=` + 请求体 `List<QaSuiteStepDO>`；先 `delete` 再逐条 `insert`，即**整表覆盖**） | 套件 |
+| `/api/qa/plan/list`（无参，按 `gmt_create` 倒序）、`/get`（`?id=`） | GET | 计划 |
 | `/api/qa/plan/add`、`/update`、`/remove` | POST | 计划 |
-| `/api/qa/env/list` | GET | 环境 |
+| `/api/qa/env/list`（无参，按 `priority` 倒序） | GET | 环境 |
 | `/api/qa/env/add`、`/update`、`/remove` | POST | 环境 |
-| `/api/qa/schedules/list`、`/get` | GET | 定时 |
-| `/api/qa/schedules/add`、`/update`、`/remove`、`/toggle`、`/scan` | POST | 定时 |
-| `/api/qa/run/list`、`/status`、`/details`、`/get` | GET（`list` 支持 `status`、`limit`，缺省 50） | 执行 |
+| `/api/qa/schedules/list`（无参）、`/get`（`?id=`） | GET | 定时 |
+| `/api/qa/schedules/add`、`/update`、`/remove` | POST | 定时 |
+| `/api/qa/schedules/toggle`（`?id=`+`?enabled=`）、`/scan`（无参，返回本次触发条数） | POST | 定时 |
+| `/api/qa/run/list`（`status`、`limit`，缺省 50）、`/status`（`?runId=`）、`/details`（`?runId=`）、`/get`（`?id=`） | GET | 执行 |
 | `/api/qa/run/trigger`（`?suiteId=`）、`/run/runPlan`（`?planId=`）、`/run/abort`（`?runId=`） | POST | 执行 |
 | `/api/qa/runs/{runCode}/abort` | POST（路径变量，与 `/run/abort` 等价，按 `run_code` 定位） | 执行 |
 | `/api/qa/report/html/{runCode}` | GET，`produces=text/html` 整页报告 | 报告 |
 | `/api/qa/report/chain/{runCode}` | GET，链路 JSON | 报告 |
 | `/api/qa/dashboard/stats`、`/summary`、`/trend`、`/suite-health`、`/top-failures` | GET | 看板 |
-| `/api/qa/e2e/sessions/open`、`/sessions/{id}/finish`、`/actions/execute` | POST | E2E |
+| `/api/qa/e2e/sessions/open`、`/sessions/{id}/finish`、`/actions/execute` | POST（请求体为 `Map`：`runId`/`browserType`/`targetUrl`、`status`/`videoOssKey`/`traceOssKey`/`harOssKey`、`sessionId`/`stepNo`/`actionType`/`selector`/`value`/`screenshot`） | E2E |
 | `/api/qa/e2e/sessions/{id}`、`/sessions/{id}/actions` | GET | E2E |
 
 响应信封是 `{ code, msg, content, success }` —— 载荷键是 **`content`**（不是 `data`），9 个 Controller 一致。
 详情走 `?id=` 查询参数而非路径变量（`/suite/get`、`/plan/get`、`/schedules/get`、`/run/get`），`/run/trigger`
-与 `/run/runPlan` 也取查询参数而非请求体。
+与 `/run/runPlan` 也取查询参数而非请求体。E2E 的动作类型词表（`z_qa_e2e_action` 注释实测）为
+`navigate/click/fill/select/hover/wait/assert_text/assert_visible/screenshot`。
 
 JSON 字段名全局是 **snake_case**，由宿主 Jackson 的 `PropertyNamingStrategy` 决定；**本模块不配 Jackson**，
 仓内没有 `ObjectMapper`／`Jackson2ObjectMapperBuilderCustomizer` 配置类。三处手写 `Map` 的出口保持 camelCase：
@@ -243,8 +248,11 @@ mvn test
 ```
 
 实测只有 1 个测试类：[`QaScheduleServiceImplTest`](z-qa-core/src/test/java/com/zifang/z/qa/admin/service/impl/QaScheduleServiceImplTest.java)
-的 5 个 JUnit Jupiter 用例，覆盖自实现 cron 的 `computeNextFire`（5 位 / 6 位含秒 / `*/5` 步长 / 非法表达式返回 null
-/ 结果恒在未来）。它是纯函数级测试，**不需要 MySQL 或任何 Spring 上下文**，`mvn test` 可直接跑绿。
+的 5 个 JUnit Jupiter 用例（`next_fire_5field` / `next_fire_6field_with_seconds` / `cron_step_every_5_minutes` /
+`invalid_cron_returns_null` / `next_fire_always_after_now`），覆盖自实现 cron 的 `computeNextFire`。
+用例直接调静态方法，**不建 Spring 上下文、不连 MySQL**，因此 `mvn test` 无外部依赖；但它只测 cron 计算这一格，
+且 `mvn test` 仍需能解析到 `z-boot-parent:1.0.21`（离线且本地仓无 parent 时会先挂在依赖解析上）。
+本次 README 更新按作业单只读 POM 与源码，未执行 `mvn`，故不宣称实测运行结果。
 
 如实说明跑不了更多东西：`z-qa-web` 没有测试目录，执行引擎（`QaRunRunner` / `ApiStepExecutor`）、看板聚合、
 通知投递都**没有**单元测试；这些链路要验证只能挂到宿主应用上，用
