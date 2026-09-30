@@ -58,3 +58,7 @@ logs/
 *.tmp
 *.orig
 *.rej
+
+/.cache/
+**/__pycache__/
+*.pyc

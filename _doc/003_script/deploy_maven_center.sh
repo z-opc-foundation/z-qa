@@ -10,10 +10,10 @@
 #   help       显示此帮助
 #
 # 用法：
-#   ./deploy_maven_center.sh                   # 等同 publish
-#   ./deploy_maven_center.sh gpg-init          # 首次必须先跑
-#   ./deploy_maven_center.sh publish
-#   ./deploy_maven_center.sh verify
+#   bash _doc/003_script/deploy_maven_center.sh                   # 等同 publish
+#   bash _doc/003_script/deploy_maven_center.sh gpg-init          # 首次必须先跑
+#   bash _doc/003_script/deploy_maven_center.sh publish
+#   bash _doc/003_script/deploy_maven_center.sh verify
 #
 # 设计原则（沿用 z-msg / z-boot / z-schedule 的口径）：
 #   - 凭证不在本仓：按 ./.env → ../z-boot/.env → ../z-schedule/.env 顺序找，
@@ -139,7 +139,7 @@ EOF
     log "上传公钥到 keys.openpgp.org（Central Portal 从这里拉公钥校验签名）"
     gpg --keyserver hkps://keys.openpgp.org --send-keys "$KEY_ID" 2>&1 || \
         warn "keyserver 上传失败，可手动跑：gpg --keyserver hkps://keys.openpgp.org --send-keys $KEY_ID"
-    log "下一步：./deploy_maven_center.sh publish"
+    log "下一步：bash _doc/003_script/deploy_maven_center.sh publish"
 }
 
 cmd_publish() {
@@ -210,7 +210,7 @@ cmd_readme() {
   3. brew install gnupg（如果还没装）
 
 【首次发布（仅当上游没有可用密钥环时）】
-  $ ./deploy_maven_center.sh gpg-init
+  $ bash _doc/003_script/deploy_maven_center.sh gpg-init
 
 【日常发布流】
   $ # 1) 改根 pom 的 <revision>（子 pom 一律 ${revision}，不要动）
@@ -218,9 +218,9 @@ cmd_readme() {
   $ git add pom.xml && git commit -m "release: X.Y.Z" && git tag vX.Y.Z
   $ git push origin main && git push origin vX.Y.Z
   $ # 3) 真发
-  $ ./deploy_maven_center.sh publish
+  $ bash _doc/003_script/deploy_maven_center.sh publish
   $ # 4) 约 30 分钟后
-  $ ./deploy_maven_center.sh verify
+  $ bash _doc/003_script/deploy_maven_center.sh verify
 
 【避坑】
   ✗ 不要贴 token / passphrase 到对话
