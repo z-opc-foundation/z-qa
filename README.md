@@ -282,16 +282,16 @@ mvn test
 
 ## 📦 发布到 Maven Central
 
-本仓没有 Dockerfile / compose / k8s 资产，部署即发布 —— 产物是给宿主用的 jar。发布走根目录
-[`_doc/003_script/deploy_maven_center.sh`](_doc/003_script/deploy_maven_center.sh)（`002_项目文档收口规范` 要求脚本收口在 [`_doc/003_script/`](_doc/003_script/)，
-本仓尚无 `_doc/`，故此脚本仍在仓库根，如实记录）：
+本仓没有 Dockerfile / compose / k8s 资产，部署即发布 —— 产物是给宿主用的 jar。发布脚本按
+`002_项目文档收口规范` 收口在 [`_doc/003_script/deploy_maven_center.sh`](_doc/003_script/deploy_maven_center.sh)，
+脚本自己从 `_doc/003_script/` 上跳两级定位仓库根并 `cd` 过去，所以在任意子目录调用都对：
 
 ```bash
-./deploy_maven_center.sh gpg-init   # 首次发布前生成 GPG 密钥并写 .env
-./deploy_maven_center.sh publish    # mvn -B deploy -Pcentral -U -Dmaven.legacyLocalRepo=true
-./deploy_maven_center.sh verify     # 约 30 分钟后，以 repo1 的 HEAD 状态码为准
-./deploy_maven_center.sh readme     # 完整指引摘要
-./deploy_maven_center.sh help
+bash _doc/003_script/deploy_maven_center.sh gpg-init   # 首次发布前生成 GPG 密钥并写 .env
+bash _doc/003_script/deploy_maven_center.sh publish    # mvn -B deploy -Pcentral -U -Dmaven.legacyLocalRepo=true
+bash _doc/003_script/deploy_maven_center.sh verify     # 约 30 分钟后，以 repo1 的 HEAD 状态码为准
+bash _doc/003_script/deploy_maven_center.sh readme     # 完整指引摘要
+bash _doc/003_script/deploy_maven_center.sh help
 ```
 
 凭证**不在本仓**：脚本按 `./.env` → `../z-boot/.env` → `../z-schedule/.env` 顺序解析，`GNUPGHOME` 同样指向上游密钥环
@@ -323,3 +323,14 @@ QA 页面的**上游副本**，不是可独立运行的前端工程：实测该�
 按仓库实际附带的许可证文本，应以 Apache-2.0 为准；如需统一，请先由 owner 定方向再改 POM 或换 LICENSE。
 
 _Maintained by the z-opc-foundation organization._
+
+
+## 文档目录
+
+本项目文档统一收口在 `_doc/` 下:
+
+- [`_doc/003_script/`](_doc/003_script/) — 运维脚本:
+  - [`deploy_maven_center.sh`](_doc/003_script/deploy_maven_center.sh) — Maven Central 发布（gpg-init / publish / verify / readme / help）
+
+`001_arch` / `002_deploy` / `004_skill` 本仓**尚未建立**（实测 `_doc/` 下只有 `003_script/`）：
+建表 DDL 目前随代码放在 `z-qa-core`（见「建表（MySQL 8）」一节），未单独收口为 `_doc/002_deploy/init.sql`。
