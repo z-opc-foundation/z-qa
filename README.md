@@ -54,7 +54,7 @@
 z-qa/
 ├── pom.xml                      # 根聚合 POM：parent=z-boot-parent:1.0.21，<revision> 统一版本，enforcer + flatten
 ├── LICENSE                      # Apache License 2.0 全文（见文末 License 一节的口径冲突）
-├── deploy_maven_center.sh       # Central 发布脚本（gpg-init / publish / verify / readme / help）
+├── _doc/003_script/deploy_maven_center.sh       # Central 发布脚本（gpg-init / publish / verify / readme / help）
 ├── z-qa-core/                   # 领域层 + 执行引擎 + 9 个 Controller + DDL（进 Maven Central）
 │   └── src/main/
 │       ├── java/com/zifang/z/qa/admin/
@@ -283,7 +283,7 @@ mvn test
 ## 📦 发布到 Maven Central
 
 本仓没有 Dockerfile / compose / k8s 资产，部署即发布 —— 产物是给宿主用的 jar。发布走根目录
-[`deploy_maven_center.sh`](deploy_maven_center.sh)（`002_项目文档收口规范` 要求脚本收口在 `_doc/003_script/`，
+[`_doc/003_script/deploy_maven_center.sh`](_doc/003_script/deploy_maven_center.sh)（`002_项目文档收口规范` 要求脚本收口在 [`_doc/003_script/`](_doc/003_script/)，
 本仓尚无 `_doc/`，故此脚本仍在仓库根，如实记录）：
 
 ```bash

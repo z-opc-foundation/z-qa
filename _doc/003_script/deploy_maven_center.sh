@@ -36,7 +36,10 @@ warn() { printf "${YELLOW}[deploy]${NC} %s\n" "$*"; }
 err()  { printf "${RED}[deploy]${NC} %s\n" "$*" >&2; }
 die()  { err "$*"; exit 1; }
 
-cd "$(dirname "$0")"
+# 脚本在 _doc/003_script/ 下，根定位须上溯两级（../z-boot 等兄弟仓凭证源也依赖 cwd 为仓根）
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+cd "$REPO_ROOT"
 [[ -f pom.xml ]] || die "请在 z-qa 仓库根目录运行此脚本"
 
 VERSION=$(grep -m1 '<revision>' pom.xml | sed 's/.*<revision>\(.*\)<\/revision>.*/\1/')
@@ -235,6 +238,6 @@ case "${1:-publish}" in
     verify)    cmd_verify ;;
     gpg-init)  cmd_gpg_init ;;
     readme)    cmd_readme ;;
-    help|-h|--help) sed -n '2,16p' "$0" ;;
+    help|-h|--help) sed -n '2,16p' "${BASH_SOURCE[0]}" ;;
     *) die "未知子命令：$1（用 help 看用法）" ;;
 esac
