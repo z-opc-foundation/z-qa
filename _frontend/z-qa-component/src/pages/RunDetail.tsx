@@ -52,7 +52,7 @@ const RunDetail: React.FC = () => {
     }, [id, status?.status]);
 
     if (loading || !run) {
-        return <div style={{padding: 24}}>加载中...</div>;
+        return <div style={{padding: 0}}>加载中...</div>;
     }
 
     const RUN_STATUS_HEX: Record<string, string> = {
@@ -78,7 +78,7 @@ const RunDetail: React.FC = () => {
     const totalDuration = run.duration_ms || 0;
 
     return (
-        <div style={{padding: 24}}>
+        <div style={{padding: 0}}>
             <Space style={{marginBottom: 16}}>
                 <Button icon={<ArrowLeftOutlined/>} onClick={() => navigate('/test/qa/runs')}>返回</Button>
                 <Button icon={<ReloadOutlined/>} onClick={load}>刷新</Button>

@@ -100,7 +100,7 @@ const SuiteList: React.FC = () => {
     };
 
     return (
-        <div style={{padding: 24}}>
+        <div style={{padding: 0}}>
             <Card
                 title={<Space><FileTextOutlined/> 测试套件管理</Space>}
                 extra={
@@ -167,7 +167,6 @@ const SuiteList: React.FC = () => {
                 onCancel={() => setModalOpen(false)}
                 onOk={handleSave}
                 destroyOnHidden
-                size="large"
             >
                 <Form form={form} layout="vertical">
                     <Form.Item name="code" label="Code (唯一)" rules={[{required: true}, {pattern: /^[a-z0-9_-]+$/}]}>

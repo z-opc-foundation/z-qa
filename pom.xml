@@ -168,8 +168,8 @@
                                     <excludes>
                                         <!-- 反向桥：和 log4j-slf4j-impl 同时在 classpath 上即成环 -->
                                         <exclude>org.apache.logging.log4j:log4j-to-slf4j</exclude>
-                                        <!-- SLF4J 2.x 绑定：与 1.7.36 的栈不同代，共用同一个 java 包 -->
-                                        <exclude>org.apache.logging.log4j:log4j-slf4j2-impl</exclude>
+                                        <!-- 火车制 1.1.0（2026-10-08）：new web-starter 走 log4j-slf4j2-impl（SLF4J 2.x 桥），旧 ban 撤 -->
+
                                         <!-- Boot 默认日志实现，本工程一律换 Log4j2 -->
                                         <exclude>org.springframework.boot:spring-boot-starter-logging</exclude>
                                         <exclude>ch.qos.logback:*</exclude>

@@ -1,6 +1,20 @@
-import request from '@/common/utils/request';
+import axios from 'axios';
 
-// D18: request 实例 baseURL 已是 '/api', 此处用相对路径, 不要再写 /api 前缀.
+// lead 005 §9.3 终版：component 自洽——自带本域接口调用，前缀参数注入。
+// 宿主接一个 /api 反代到本域后端即可；默认 '/api'，可 configureQa({ apiBase }) 覆写。
+let apiBase = '/api';
+
+export function configureQa({ apiBase: base } = {}) {
+    if (base !== undefined) apiBase = base;
+}
+
+// 轻封装：仅做 baseURL 拼接，不裹 unwrap/401 跳转（那是宿主 request 层的职责）。
+const request = {
+    get: (url, config) => axios.get(apiBase + url, config),
+    post: (url, data, config) => axios.post(apiBase + url, data, config),
+    put: (url, data, config) => axios.put(apiBase + url, data, config),
+    delete: (url, config) => axios.delete(apiBase + url, config),
+};
 
 // ============ 套件 (Suite) ============
 export const suiteApi = {

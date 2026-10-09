@@ -84,7 +84,7 @@ const SuiteSteps: React.FC = () => {
     };
 
     return (
-        <div style={{padding: 24}}>
+        <div style={{padding: 0}}>
             <Card
                 title={`套件步骤 — ${suite?.name || id}`}
                 extra={
@@ -160,7 +160,6 @@ const SuiteSteps: React.FC = () => {
                 onCancel={() => setModalOpen(false)}
                 onOk={handleSave}
                 destroyOnHidden
-                size="large"
             >
                 <Form form={form} layout="vertical">
                     <Form.Item name="step_name" label="步骤名称" rules={[{required: true}]}>

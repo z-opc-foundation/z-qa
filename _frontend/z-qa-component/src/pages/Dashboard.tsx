@@ -19,6 +19,7 @@ const Dashboard: React.FC = () => {
     const [recentRuns, setRecentRuns] = useState<any[]>([]);
     const [topFailures, setTopFailures] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [loadError, setLoadError] = useState<string | null>(null);
 
     useEffect(() => {
         (async () => {
@@ -31,14 +32,24 @@ const Dashboard: React.FC = () => {
                 setStats(s?.content || {});
                 setRecentRuns(r?.content || []);
                 setTopFailures(f?.content || []);
+            } catch (e: any) {
+                // 2026-10-04: 原来这里只有 try/finally 没有 catch，Promise.all 任一接口失败
+                // （例如后端未实现时三个接口全 404）会让 rejection 逃出去变成**未捕获的
+                // AxiosError**，控制台红字且页面永远停在「加载中...」。这里兜住并给出可读状态。
+                console.warn('[qa] dashboard 加载失败:', e?.message || e);
+                setLoadError(e?.message || '加载失败');
             } finally {
                 setLoading(false);
             }
         })();
     }, []);
 
+    if (loadError) {
+        return <div style={{padding: 16, color: 'rgba(0,0,0,0.45)'}}>加载失败：{loadError}</div>;
+    }
+
     if (loading || !stats) {
-        return <div style={{padding: 24}}>加载中...</div>;
+        return <div style={{padding: 0}}>加载中...</div>;
     }
 
     // 后端 COUNT 出来的是字符串 ("1"+"10" 会变成拼接), 参与运算前必须转数字
@@ -57,7 +68,7 @@ const Dashboard: React.FC = () => {
     };
 
     return (
-        <div style={{padding: 24}}>
+        <div style={{padding: 0}}>
             <h2><ExperimentOutlined/> 测试平台 · 质量看板</h2>
 
             <Row gutter={16} style={{marginBottom: 16}}>

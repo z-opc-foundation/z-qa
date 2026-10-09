@@ -34,7 +34,7 @@ const RunList: React.FC = () => {
     };
 
     return (
-        <div style={{padding: 24}}>
+        <div style={{padding: 0}}>
             <Card
                 title={<Space><FileSearchOutlined/> 执行记录</Space>}
                 extra={<Button icon={<ReloadOutlined/>} onClick={load}>刷新</Button>}

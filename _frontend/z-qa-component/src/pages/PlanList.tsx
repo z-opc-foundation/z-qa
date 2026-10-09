@@ -105,7 +105,7 @@ const PlanList: React.FC = () => {
     };
 
     return (
-        <div style={{padding: 24}}>
+        <div style={{padding: 0}}>
             <Card
                 title={<Space><ScheduleOutlined/> 测试计划</Space>}
                 extra={
@@ -165,7 +165,7 @@ const PlanList: React.FC = () => {
             </Card>
 
             <Modal title={editing ? '编辑计划' : '新增计划'} open={modalOpen}
-                   onCancel={() => setModalOpen(false)} onOk={handleSave} destroyOnHidden size="large">
+                   onCancel={() => setModalOpen(false)} onOk={handleSave} destroyOnHidden>
                 <Form form={form} layout="vertical">
                     <Form.Item name="code" label="Code (唯一)" rules={[{required: true}, {pattern: /^[a-z0-9_-]+$/}]}>
                         <Input placeholder="如: nightly-regression"/>

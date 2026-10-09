@@ -70,7 +70,7 @@ const EnvList: React.FC = () => {
     };
 
     return (
-        <div style={{padding: 24}}>
+        <div style={{padding: 0}}>
             <Card
                 title={<Space><GlobalOutlined/> 测试环境</Space>}
                 extra={

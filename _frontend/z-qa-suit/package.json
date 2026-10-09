@@ -1,0 +1,26 @@
+{
+  "name": "@yuku123/z-qa-suit",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "z-qa 独立运行壳（lead 005 §9.1 suit：configure apiBase + 挂路由）。不发布 npm",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@yuku123/z-qa-component": "file:../z-qa-component",
+    "@ant-design/icons": "^6.1.0",
+    "antd": "^6.3.3",
+    "axios": "^1.16.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-router-dom": "^7.13.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "vite": "^6.2.6"
+  }
+}

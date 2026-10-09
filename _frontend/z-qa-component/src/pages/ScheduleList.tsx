@@ -57,7 +57,7 @@ const ScheduleList: React.FC = () => {
                     )
                 },
             ]}/>
-            <Modal open={open} onCancel={() => setOpen(false)} size="large" onOk={async () => {
+            <Modal open={open} onCancel={() => setOpen(false)} onOk={async () => {
                 const v = await form.validateFields();
                 await scheduleApi.add(v);
                 setOpen(false);
