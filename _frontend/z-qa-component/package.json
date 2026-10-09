@@ -1,6 +1,6 @@
 {
   "name": "@yuku123/z-qa-component",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "z-qa 可复用前端组件：QA 管理台页面集（自洽含本域接口调用，apiBase 经 configureQa 注入；lead 005 §9.3）",
   "type": "module",
   "main": "./dist/index.js",
