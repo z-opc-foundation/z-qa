@@ -334,3 +334,5 @@ _Maintained by the z-opc-foundation organization._
 
 `001_arch` / `002_deploy` / `004_skill` 本仓**尚未建立**（实测 `_doc/` 下只有 `003_script/`）：
 建表 DDL 目前随代码放在 `z-qa-core`（见「建表（MySQL 8）」一节），未单独收口为 `_doc/002_deploy/init.sql`。
+
+<!-- icon: minimax image-01, gradient=#059669, glyph=qa -->
