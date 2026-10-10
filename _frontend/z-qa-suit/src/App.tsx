@@ -1,0 +1,78 @@
+import { Component, useEffect, useState } from 'react'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { AppLayout } from '../../../../_shared/z-frontend-common-local/dist/z-frontend-common.es.js'
+import { menuItems, routeTable } from './pages-manifest'
+import LoginPage from './LoginPage'
+import { Button, Result } from 'antd'
+
+class ErrorBoundary extends Component<any, any> {
+    constructor(props: any) { super(props); this.state = { err: null } }
+    static getDerivedStateFromError(err: Error) { return { err } }
+    componentDidCatch(err: Error, info: unknown) { console.error('[App ErrorBoundary]', err, info) }
+    render() {
+        if ((this.state as any).err) return <pre style={{ padding: 24, color: 'red', whiteSpace: 'pre-wrap' }}>{String((this.state as any).err?.stack || (this.state as any).err)}</pre>
+        return this.props.children
+    }
+}
+
+function NotFound() {
+    return (
+        <Result
+            status="404"
+            title="页面不存在"
+            subTitle="路由表里没有这条路径。"
+            extra={<Button type="primary" onClick={() => { window.location.href = '/z-qa/home' }}>去首页</Button>}
+        />
+    )
+}
+
+function LoginRoute() {
+    return <LoginPage />
+}
+
+function ProtectedShell() {
+    const [user, setUser] = useState<{ name?: string; role?: string } | null>(null)
+    const [ready, setReady] = useState(false)
+
+    useEffect(() => {
+        if (!localStorage.getItem('token')) {
+            window.location.replace('/z-qa/login')
+            return
+        }
+        const raw = localStorage.getItem('userInfo')
+        if (raw) { try { setUser(JSON.parse(raw)) } catch { setUser({ name: raw }) } }
+        setReady(true)
+    }, [])
+
+    if (!ready) return null
+
+    return (
+        <AppLayout
+            menuItems={menuItems}
+            appTitle="z-qa 测试平台"
+            appShort="z-qa"
+            appVersion="0.1.1"
+            appUser={user}
+        />
+    )
+}
+
+/** lead 008 §16 suit 一次整合：登录路由 + 鉴权壳 + URL 即状态（§11/§14）。 */
+export default function App() {
+    return (
+        <ErrorBoundary>
+            <BrowserRouter>
+                <Routes>
+                    <Route path="/z-qa/login" element={<LoginRoute />} />
+                    <Route element={<ProtectedShell />}>
+                        <Route path="/" element={<Navigate to={menuItems[0].key} replace />} />
+                        {routeTable.map((r) => (
+                            <Route key={r.path} path={r.path} element={<r.Component />} />
+                        ))}
+                        <Route path="*" element={<NotFound />} />
+                    </Route>
+                </Routes>
+            </BrowserRouter>
+        </ErrorBoundary>
+    )
+}

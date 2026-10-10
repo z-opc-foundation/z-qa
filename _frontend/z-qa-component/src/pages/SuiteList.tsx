@@ -85,14 +85,14 @@ const SuiteList: React.FC = () => {
             const res = await runApi.trigger(s.id, s.env_code, ui.username || 'admin', 'manual');
             const run = res?.content;
             message.success(`已触发: ${run?.run_code}`);
-            navigate(`/test/qa/runs/${run?.id}`);
+            navigate(`/z-qa/runs/${run?.id}`);
         } catch (e: any) {
             message.error('运行失败: ' + (e?.message || e));
         }
     };
 
     const handleViewSteps = (s: any) => {
-        navigate(`/test/qa/suites/${s.id}/steps`, {state: {suite: s}});
+        navigate(`/z-qa/suites/${s.id}/steps`, {state: {suite: s}});
     };
 
     const categoryColors: Record<string, string> = {

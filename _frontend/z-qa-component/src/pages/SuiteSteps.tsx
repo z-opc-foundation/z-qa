@@ -89,7 +89,7 @@ const SuiteSteps: React.FC = () => {
                 title={`套件步骤 — ${suite?.name || id}`}
                 extra={
                     <Space>
-                        <Button onClick={() => navigate('/test/qa/suites')}>返回</Button>
+                        <Button onClick={() => navigate('/z-qa/suites')}>返回</Button>
                         <Button icon={<PlusOutlined/>} onClick={handleAdd}>新增步骤</Button>
                         <Button type="primary" icon={<SaveOutlined/>} onClick={handleSaveAll}>保存全部</Button>
                     </Space>

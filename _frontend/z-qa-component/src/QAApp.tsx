@@ -15,7 +15,7 @@ import QaNotImplemented from './QaNotImplemented';
 
 /**
  * z-qa 测试平台路由 (FEATURE052 §7).
- * 路径: /test/qa/*
+ * 路径: /z-qa/*
  *
  * 后端能力探测（2026-10-04）：本模块前端完整、后端零实现，详见
  * {@link QaNotImplemented} 的实测依据。进模块先探一个代表性接口，
@@ -49,19 +49,18 @@ const QAApp: React.FC = () => {
     return (
         <Routes>
             {/* 相对路径: 父路由 main.jsx 的 /test/* 已消耗前缀, <Routes> 会把 pathname
-             * 重基到 /qa/*, 写绝对路径 /test/qa/xxx 反而一条都匹配不到 */}
-            <Route path="qa" element={<Dashboard/>}/>
-            <Route path="qa/dashboard" element={<Dashboard/>}/>
-            <Route path="qa/suites" element={<SuiteList/>}/>
-            <Route path="qa/suites/:id/steps" element={<SuiteSteps/>}/>
-            <Route path="qa/plans" element={<PlanList/>}/>
-            <Route path="qa/runs" element={<RunList/>}/>
-            <Route path="qa/runs/:id" element={<RunDetail/>}/>
-            <Route path="qa/envs" element={<EnvList/>}/>
-            <Route path="qa/cases" element={<CaseList/>}/>
-            <Route path="qa/schedules" element={<ScheduleList/>}/>
-            <Route path="qa/e2e" element={<E2ESessions/>}/>
-            <Route path="*" element={<Navigate to="/test/qa/dashboard" replace/>}/>
+             * 重基到 /qa/*, 写绝对路径 /z-qa/xxx 反而一条都匹配不到 */}
+            <Route path="dashboard" element={<Dashboard/>}/>
+            <Route path="suites" element={<SuiteList/>}/>
+            <Route path="suites/:id/steps" element={<SuiteSteps/>}/>
+            <Route path="plans" element={<PlanList/>}/>
+            <Route path="runs" element={<RunList/>}/>
+            <Route path="runs/:id" element={<RunDetail/>}/>
+            <Route path="envs" element={<EnvList/>}/>
+            <Route path="cases" element={<CaseList/>}/>
+            <Route path="schedules" element={<ScheduleList/>}/>
+            <Route path="e2e" element={<E2ESessions/>}/>
+            <Route path="*" element={<Navigate to="/z-qa/dashboard" replace/>}/>
         </Routes>
     );
 };

@@ -80,7 +80,7 @@ const RunDetail: React.FC = () => {
     return (
         <div style={{padding: 0}}>
             <Space style={{marginBottom: 16}}>
-                <Button icon={<ArrowLeftOutlined/>} onClick={() => navigate('/test/qa/runs')}>返回</Button>
+                <Button icon={<ArrowLeftOutlined/>} onClick={() => navigate('/z-qa/runs')}>返回</Button>
                 <Button icon={<ReloadOutlined/>} onClick={load}>刷新</Button>
                 {abortable && (
                     <Popconfirm title="中止后剩余步骤记为跳过，确认？" okText="中止" okButtonProps={{danger: true}}

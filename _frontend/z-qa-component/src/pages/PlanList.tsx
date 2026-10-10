@@ -88,7 +88,7 @@ const PlanList: React.FC = () => {
             }
             const run = res?.content;
             message.success(`已触发: ${run?.run_code}`);
-            navigate(`/test/qa/runs/${run?.id}`);
+            navigate(`/z-qa/runs/${run?.id}`);
         } catch (e: any) {
             message.error('触发失败: ' + (e?.message || e));
         }

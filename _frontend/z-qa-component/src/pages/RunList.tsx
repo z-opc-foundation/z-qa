@@ -92,7 +92,7 @@ const RunList: React.FC = () => {
                             title: '操作', width: 100, fixed: 'right',
                             render: (_, r) => (
                                 <Button size="small" icon={<EyeOutlined/>}
-                                        onClick={() => navigate(`/test/qa/runs/${r.id}`)}>详情</Button>
+                                        onClick={() => navigate(`/z-qa/runs/${r.id}`)}>详情</Button>
                             )
                         },
                     ]}
