@@ -9,6 +9,7 @@
     "build": "vite build"
   },
   "dependencies": {
+    "@yuku123/z-frontend-common": "^1.0.0",
     "@yuku123/z-qa-component": "file:../z-qa-component",
     "@ant-design/icons": "^6.1.0",
     "antd": "^6.3.3",
