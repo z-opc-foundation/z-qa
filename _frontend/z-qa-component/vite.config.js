@@ -22,6 +22,7 @@ export default defineConfig({
             external: [
                 'react', 'react-dom', 'react-dom/client',
                 'react-router-dom', 'antd', '@ant-design/icons', 'axios',
+                '@yuku123/z-frontend-common',
             ],
         },
     },
