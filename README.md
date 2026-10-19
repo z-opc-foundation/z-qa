@@ -309,10 +309,15 @@ BUILD SUCCESS，判「发出去了」只认 repo1 的状态码）；已发布版
 
 ## 🖥️ _frontend
 
-[`_frontend/src/tools/qa/`](./_frontend/src/tools/qa) 是主 SPA（z-opc `bootstraps/z-opc-main-starter-frontend`）里
-QA 页面的**上游副本**，不是可独立运行的前端工程：实测该目录下**没有** `package.json`／构建配置，
-`services/api.ts` 直接 `import request from '@/common/utils/request'`（依赖宿主的 `@/` 别名与 baseURL=`/api`），
-页面用 React + antd + react-router-dom（`QAApp.tsx` + 10 个 page）。改这里不会生效，改完必须回流宿主 SPA。
+本仓前端已按 lead 005 §9 拆成**组件 + 独立壳（suit）**两件：
+
+- [`_frontend/z-qa-component/`](_frontend/z-qa-component/) — 可复用页面集：`src/pages/` 下 10 个 page +
+  `QAApp.tsx` + `services/api.ts`。`services/api.ts` **自洽**（自带 `configureQa({ apiBase })`，默认 baseURL=`/api`），
+  不再依赖宿主 SPA 的 `@/` 别名
+- [`_frontend/z-qa-suit/`](_frontend/z-qa-suit/) — 独立运行壳（`vite` dev/build + `tsc --noEmit` typecheck），
+  装配 component 并挂路由
+
+页面用 React + antd + react-router-dom。宿主接入方式：起一个 `/api` 反代到本域后端即可。
 
 ---
 
