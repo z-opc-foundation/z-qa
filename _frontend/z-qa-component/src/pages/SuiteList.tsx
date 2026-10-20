@@ -1,5 +1,6 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {Button, Card, Form, Input, message, Modal, Popconfirm, Select, Space, Switch, Table, Tag, Tooltip} from 'antd';
+import {EmptyState} from '@yuku123/z-frontend-common/ui';
 import {
     DeleteOutlined,
     EditOutlined,
@@ -14,13 +15,15 @@ import {useNavigate} from 'react-router-dom';
 
 /**
  * 测试套件管理 - 列表 + CRUD + 运行触发.
- * 路径: /tools/qa/suites
+ * 路径: /z-qa/suites
  */
 const SuiteList: React.FC = () => {
     const [suites, setSuites] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
     const [editing, setEditing] = useState<any>(null);
+    const [keyword, setKeyword] = useState('');
+    const [category, setCategory] = useState<string | undefined>();
     const [form] = Form.useForm();
     const navigate = useNavigate();
 
@@ -37,6 +40,17 @@ const SuiteList: React.FC = () => {
     useEffect(() => {
         load();
     }, []);
+
+    // §2-3：查询走端侧过滤（数据量是套件数级，不打后端分页）
+    const filtered = useMemo(() => {
+        const kw = keyword.trim().toLowerCase();
+        return suites.filter((s) => {
+            if (category && s.category !== category) return false;
+            if (!kw) return true;
+            return [s.code, s.name, s.owner, s.tags].some(
+                (v) => v && String(v).toLowerCase().includes(kw));
+        });
+    }, [suites, keyword, category]);
 
     const handleAdd = () => {
         setEditing(null);
@@ -105,6 +119,25 @@ const SuiteList: React.FC = () => {
                 title={<Space><FileTextOutlined/> 测试套件管理</Space>}
                 extra={
                     <Space>
+                        <Input.Search
+                            allowClear
+                            placeholder="搜 code / 名称 / 负责人"
+                            style={{width: 240}}
+                            onChange={(e) => setKeyword(e.target.value)}
+                        />
+                        <Select
+                            allowClear
+                            placeholder="分类"
+                            style={{width: 130}}
+                            value={category}
+                            onChange={setCategory}
+                            options={[
+                                {value: 'smoke', label: 'smoke'},
+                                {value: 'regression', label: 'regression'},
+                                {value: 'api', label: 'api'},
+                                {value: 'e2e', label: 'e2e'},
+                            ]}
+                        />
                         <Button icon={<ReloadOutlined/>} onClick={load}>刷新</Button>
                         <Button type="primary" icon={<PlusOutlined/>} onClick={handleAdd}>新增套件</Button>
                     </Space>
@@ -112,9 +145,19 @@ const SuiteList: React.FC = () => {
             >
                 <Table
                     rowKey="id"
-                    dataSource={suites}
+                    dataSource={filtered}
                     loading={loading}
-                    pagination={{pageSize: 20}}
+                    pagination={{
+                        pageSize: 20,
+                        showSizeChanger: true,
+                        pageSizeOptions: ['10', '20', '50', '100'],
+                        showTotal: (t) => `共 ${t} 条`,
+                    }}
+                    locale={{
+                        emptyText: suites.length === 0
+                            ? <EmptyState title="还没有测试套件" description="点「新增套件」建第一条"/>
+                            : <EmptyState title="没有匹配的套件" description="换个关键词或清掉筛选条件"/>
+                    }}
                     columns={[
                         {title: 'ID', dataIndex: 'id', width: 60},
                         {title: 'Code', dataIndex: 'code', width: 200, render: t => <code>{t}</code>},
@@ -144,15 +187,22 @@ const SuiteList: React.FC = () => {
                             render: (_, s) => (
                                 <Space>
                                     <Tooltip title="查看步骤">
-                                        <Button size="small" icon={<EyeOutlined/>}
+                                        <Button type="link" size="small" icon={<EyeOutlined/>}
                                                 onClick={() => handleViewSteps(s)}>步骤</Button>
                                     </Tooltip>
-                                    <Button size="small" type="primary" icon={<PlayCircleOutlined/>}
+                                    <Button type="link" size="small" icon={<PlayCircleOutlined/>}
                                             onClick={() => handleRun(s)}>运行</Button>
-                                    <Button size="small" icon={<EditOutlined/>}
+                                    <Button type="link" size="small" icon={<EditOutlined/>}
                                             onClick={() => handleEdit(s)}>编辑</Button>
-                                    <Popconfirm title="确认删除?" onConfirm={() => handleDelete(s.id)}>
-                                        <Button size="small" danger icon={<DeleteOutlined/>}>删除</Button>
+                                    <Popconfirm
+                                        title="确认删除该套件？"
+                                        description="删除后套件及其步骤一并移除，历史执行记录保留。此操作不可撤销。"
+                                        okText="删除"
+                                        okButtonProps={{danger: true}}
+                                        cancelText="取消"
+                                        onConfirm={() => handleDelete(s.id)}
+                                    >
+                                        <Button type="link" size="small" danger icon={<DeleteOutlined/>}>删除</Button>
                                     </Popconfirm>
                                 </Space>
                             )

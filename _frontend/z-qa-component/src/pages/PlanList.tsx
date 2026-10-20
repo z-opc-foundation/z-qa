@@ -1,12 +1,13 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {Button, Card, Form, Input, message, Modal, Popconfirm, Select, Space, Table, Tag} from 'antd';
+import {EmptyState} from '@yuku123/z-frontend-common/ui';
 import {DeleteOutlined, EditOutlined, PlayCircleOutlined, PlusOutlined, ReloadOutlined, ScheduleOutlined} from '@ant-design/icons';
 import {planApi, suiteApi} from '../services/api';
 import {useNavigate} from 'react-router-dom';
 
 /**
  * 测试计划管理.
- * 路径: /tools/qa/plans
+ * 路径: /z-qa/plans
  */
 const PlanList: React.FC = () => {
     const [plans, setPlans] = useState<any[]>([]);
@@ -14,6 +15,7 @@ const PlanList: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
     const [editing, setEditing] = useState<any>(null);
+    const [keyword, setKeyword] = useState('');
     const [form] = Form.useForm();
     const navigate = useNavigate();
 
@@ -31,6 +33,13 @@ const PlanList: React.FC = () => {
     useEffect(() => {
         load();
     }, []);
+
+    const filtered = useMemo(() => {
+        const kw = keyword.trim().toLowerCase();
+        if (!kw) return plans;
+        return plans.filter((p) => [p.code, p.name, p.owner, p.notify_type]
+            .some((v) => v && String(v).toLowerCase().includes(kw)));
+    }, [plans, keyword]);
 
     const handleAdd = () => {
         setEditing(null);
@@ -110,6 +119,12 @@ const PlanList: React.FC = () => {
                 title={<Space><ScheduleOutlined/> 测试计划</Space>}
                 extra={
                     <Space>
+                        <Input.Search
+                            allowClear
+                            placeholder="搜 code / 名称 / 负责人"
+                            style={{width: 240}}
+                            onChange={(e) => setKeyword(e.target.value)}
+                        />
                         <Button icon={<ReloadOutlined/>} onClick={load}>刷新</Button>
                         <Button type="primary" icon={<PlusOutlined/>} onClick={handleAdd}>新增计划</Button>
                     </Space>
@@ -117,9 +132,19 @@ const PlanList: React.FC = () => {
             >
                 <Table
                     rowKey="id"
-                    dataSource={plans}
+                    dataSource={filtered}
                     loading={loading}
-                    pagination={{pageSize: 20}}
+                    pagination={{
+                        pageSize: 20,
+                        showSizeChanger: true,
+                        pageSizeOptions: ['10', '20', '50', '100'],
+                        showTotal: (t) => `共 ${t} 条`,
+                    }}
+                    locale={{
+                        emptyText: plans.length === 0
+                            ? <EmptyState title="还没有测试计划" description="点「新增计划」把套件编成一批跑"/>
+                            : <EmptyState title="没有匹配的计划" description="换个关键词再试"/>
+                    }}
                     columns={[
                         {title: 'ID', dataIndex: 'id', width: 60},
                         {title: 'Code', dataIndex: 'code', width: 200, render: t => <code>{t}</code>},
@@ -150,12 +175,19 @@ const PlanList: React.FC = () => {
                             title: '操作', width: 220,
                             render: (_, p) => (
                                 <Space>
-                                    <Button size="small" type="primary" icon={<PlayCircleOutlined/>}
+                                    <Button type="link" size="small" icon={<PlayCircleOutlined/>}
                                             onClick={() => handleRun(p)}>运行</Button>
-                                    <Button size="small" icon={<EditOutlined/>}
+                                    <Button type="link" size="small" icon={<EditOutlined/>}
                                             onClick={() => handleEdit(p)}>编辑</Button>
-                                    <Popconfirm title="确认删除?" onConfirm={() => handleDelete(p.id)}>
-                                        <Button size="small" danger icon={<DeleteOutlined/>}>删除</Button>
+                                    <Popconfirm
+                                        title="确认删除该计划？"
+                                        description="删除后计划与其套件关联一并移除，已产生的执行记录保留。此操作不可撤销。"
+                                        okText="删除"
+                                        okButtonProps={{danger: true}}
+                                        cancelText="取消"
+                                        onConfirm={() => handleDelete(p.id)}
+                                    >
+                                        <Button type="link" size="small" danger icon={<DeleteOutlined/>}>删除</Button>
                                     </Popconfirm>
                                 </Space>
                             )

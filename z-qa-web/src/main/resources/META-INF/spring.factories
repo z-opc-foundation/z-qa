@@ -1,2 +1,22 @@
+# 业务 bean 全部走 FQCN 显式注册（lead 007 §4.2）。刻意不用 @ComponentScan：
+# 宿主若也扫到本包会双注册，同类型 bean 出现两份 → NoUniqueBeanDefinitionException。
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.zifang.z.qa.web.config.QaAutoConfiguration
+com.zifang.z.qa.web.config.QaAutoConfiguration,\
+com.zifang.z.qa.web.config.QaModuleDataSource,\
+com.zifang.z.qa.admin.config.QaAsyncConfig,\
+com.zifang.z.qa.admin.engine.QaExecutionDispatcher,\
+com.zifang.z.qa.admin.engine.QaRunRunner,\
+com.zifang.z.qa.admin.engine.ApiStepExecutor,\
+com.zifang.z.qa.admin.service.impl.QaE2eServiceImpl,\
+com.zifang.z.qa.admin.service.impl.QaNotifyServiceImpl,\
+com.zifang.z.qa.admin.service.impl.QaReportServiceImpl,\
+com.zifang.z.qa.admin.service.impl.QaScheduleServiceImpl,\
+com.zifang.z.qa.web.api.CaseApi,\
+com.zifang.z.qa.web.api.DashboardApi,\
+com.zifang.z.qa.web.api.E2eApi,\
+com.zifang.z.qa.web.api.EnvApi,\
+com.zifang.z.qa.web.api.PlanApi,\
+com.zifang.z.qa.web.api.ReportApi,\
+com.zifang.z.qa.web.api.RunApi,\
+com.zifang.z.qa.web.api.ScheduleApi,\
+com.zifang.z.qa.web.api.SuiteApi

@@ -1,23 +1,15 @@
 import React from 'react';
 import {Button, Card, Form, Input, message, Select, Table, Tabs, Tag} from 'antd';
+import {EmptyState} from '@yuku123/z-frontend-common/ui';
 import {e2eApi} from '../services/api';
 
 const E2ESessions: React.FC = () => {
-    const [sessions, setSessions] = React.useState<any[]>([]);
-    const [active, setActive] = React.useState<string | null>(null);
     const [actions, setActions] = React.useState<any[]>([]);
+    const [active, setActive] = React.useState<string | null>(null);
     const [form] = Form.useForm();
 
-    const loadSessions = async () => {
-        // 简单从已存储的 mapping 拿不到列表, 需后端提供 /qa/e2e/sessions/list
-        // 这里简化: 让用户填 ID, 拉详情
-    };
-    React.useEffect(() => {
-        loadSessions();
-    }, []);
-
     return (
-        <Card title="E2E 浏览器会话 (FEATURE052 Phase 7)">
+        <Card title="E2E 浏览器会话">
             <Tabs activeKey={active || 'open'} onChange={setActive}
                   items={[
                       {
@@ -47,7 +39,7 @@ const E2ESessions: React.FC = () => {
                           ),
                       },
                       {
-                          key: 'list', label: '会话记录',
+                          key: 'list', label: '操作记录',
                           children: (
                               <div>
                                   <p>输入 sessionId 拉取操作记录：</p>
@@ -55,10 +47,12 @@ const E2ESessions: React.FC = () => {
                                       const list = ((await e2eApi.listActions(v.sessionId)) as any).content || [];
                                       setActions(list);
                                   }}>
-                                      <Form.Item name="sessionId" label="sessionId"><Input type="number"/></Form.Item>
+                                      <Form.Item name="sessionId" label="sessionId" rules={[{required: true}]}><Input type="number"/></Form.Item>
                                       <Form.Item><Button type="primary" htmlType="submit">查询</Button></Form.Item>
                                   </Form>
-                                  <Table style={{marginTop: 12}} dataSource={actions} rowKey="id" columns={[
+                                  <Table style={{marginTop: 12}} dataSource={actions} rowKey="id"
+                                         locale={{emptyText: <EmptyState title="还没有操作记录" description="开启会话后执行动作，记录会出现在这里"/>}}
+                                         columns={[
                                       {title: '顺序', dataIndex: 'step_no', width: 60},
                                       {title: '动作', dataIndex: 'action_type', width: 100},
                                       {title: '选择器', dataIndex: 'selector'},

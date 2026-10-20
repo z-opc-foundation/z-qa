@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Navigate, Route, Routes} from 'react-router-dom';
+import {Navigate, Route, Routes, useLocation} from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import SuiteList from './pages/SuiteList';
 import SuiteSteps from './pages/SuiteSteps';
@@ -10,6 +10,7 @@ import EnvList from './pages/EnvList';
 import CaseList from './pages/CaseList';
 import ScheduleList from './pages/ScheduleList';
 import E2ESessions from './pages/E2ESessions';
+import ComponentDoc from './pages/ComponentDoc';
 import {dashboardApi} from './services/api';
 import QaNotImplemented from './QaNotImplemented';
 
@@ -24,8 +25,12 @@ import QaNotImplemented from './QaNotImplemented';
  */
 const QAApp: React.FC = () => {
     const [backend, setBackend] = useState<'checking' | 'ok' | 'missing'>('checking');
+    const {pathname} = useLocation();
+    // 文档页只读编译期嵌入的 DOC.md，不打任何后端接口；探不通时也必须可达。
+    const isDocs = /\/docs\/?$/.test(pathname);
 
     useEffect(() => {
+        if (isDocs) return;
         let cancelled = false;
         // 任取一个代表性接口即可；选 stats 是因为它无路径参数、最轻。
         dashboardApi
@@ -39,10 +44,10 @@ const QAApp: React.FC = () => {
         return () => {
             cancelled = true;
         };
-    }, []);
+    }, [isDocs]);
 
     // 探测在飞时不渲染内容：否则子页会先发一轮注定 404 的请求。
-    if (backend !== 'ok') {
+    if (!isDocs && backend !== 'ok') {
         return backend === 'missing' ? <QaNotImplemented/> : null;
     }
 
@@ -60,6 +65,7 @@ const QAApp: React.FC = () => {
             <Route path="cases" element={<CaseList/>}/>
             <Route path="schedules" element={<ScheduleList/>}/>
             <Route path="e2e" element={<E2ESessions/>}/>
+            <Route path="docs" element={<ComponentDoc/>}/>
             <Route path="*" element={<Navigate to="/z-qa/dashboard" replace/>}/>
         </Routes>
     );

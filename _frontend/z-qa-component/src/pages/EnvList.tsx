@@ -1,17 +1,19 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {Button, Card, Form, Input, InputNumber, message, Modal, Popconfirm, Space, Table, Tag} from 'antd';
+import {EmptyState} from '@yuku123/z-frontend-common/ui';
 import {DeleteOutlined, EditOutlined, GlobalOutlined, PlusOutlined, ReloadOutlined} from '@ant-design/icons';
 import {envApi} from '../services/api';
 
 /**
  * 测试环境管理.
- * 路径: /tools/qa/envs
+ * 路径: /z-qa/envs
  */
 const EnvList: React.FC = () => {
     const [envs, setEnvs] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
     const [editing, setEditing] = useState<any>(null);
+    const [keyword, setKeyword] = useState('');
     const [form] = Form.useForm();
 
     const load = async () => {
@@ -27,6 +29,13 @@ const EnvList: React.FC = () => {
     useEffect(() => {
         load();
     }, []);
+
+    const filtered = useMemo(() => {
+        const kw = keyword.trim().toLowerCase();
+        if (!kw) return envs;
+        return envs.filter((e) => [e.code, e.name, e.base_url, e.description]
+            .some((v) => v && String(v).toLowerCase().includes(kw)));
+    }, [envs, keyword]);
 
     const handleAdd = () => {
         setEditing(null);
@@ -75,6 +84,12 @@ const EnvList: React.FC = () => {
                 title={<Space><GlobalOutlined/> 测试环境</Space>}
                 extra={
                     <Space>
+                        <Input.Search
+                            allowClear
+                            placeholder="搜 code / 名称 / baseUrl"
+                            style={{width: 240}}
+                            onChange={(e) => setKeyword(e.target.value)}
+                        />
                         <Button icon={<ReloadOutlined/>} onClick={load}>刷新</Button>
                         <Button type="primary" icon={<PlusOutlined/>} onClick={handleAdd}>新增环境</Button>
                     </Space>
@@ -82,9 +97,19 @@ const EnvList: React.FC = () => {
             >
                 <Table
                     rowKey="id"
-                    dataSource={envs}
+                    dataSource={filtered}
                     loading={loading}
-                    pagination={false}
+                    pagination={{
+                        pageSize: 20,
+                        showSizeChanger: true,
+                        pageSizeOptions: ['10', '20', '50', '100'],
+                        showTotal: (t) => `共 ${t} 条`,
+                    }}
+                    locale={{
+                        emptyText: envs.length === 0
+                            ? <EmptyState title="还没有测试环境" description="先建一个 local 或 staging，套件才有地方跑"/>
+                            : <EmptyState title="没有匹配的环境" description="换个关键词再试"/>
+                    }}
                     columns={[
                         {title: 'ID', dataIndex: 'id', width: 60},
                         {title: 'Code', dataIndex: 'code', width: 120, render: t => <Tag color="blue">{t}</Tag>},
@@ -103,10 +128,17 @@ const EnvList: React.FC = () => {
                             title: '操作', width: 160,
                             render: (_, e) => (
                                 <Space>
-                                    <Button size="small" icon={<EditOutlined/>}
+                                    <Button type="link" size="small" icon={<EditOutlined/>}
                                             onClick={() => handleEdit(e)}>编辑</Button>
-                                    <Popconfirm title="确认删除?" onConfirm={() => handleDelete(e.id)}>
-                                        <Button size="small" danger icon={<DeleteOutlined/>}>删除</Button>
+                                    <Popconfirm
+                                        title="确认删除该环境？"
+                                        description="删除后引用此环境的套件将无法执行。执行记录保留。此操作不可撤销。"
+                                        okText="删除"
+                                        okButtonProps={{danger: true}}
+                                        cancelText="取消"
+                                        onConfirm={() => handleDelete(e.id)}
+                                    >
+                                        <Button type="link" size="small" danger icon={<DeleteOutlined/>}>删除</Button>
                                     </Popconfirm>
                                 </Space>
                             )

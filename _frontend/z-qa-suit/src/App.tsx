@@ -1,9 +1,11 @@
 import { Component, useEffect, useState } from 'react'
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes, useNavigate } from 'react-router-dom'
 import { AppLayout } from '@yuku123/z-frontend-common'
-import { menuItems, routeTable } from './pages-manifest'
+import { LOGIN_PATH, menuItems, routeTable } from './pages-manifest'
 import LoginPage from './LoginPage'
 import { Button, Result } from 'antd'
+// §12：版本号取自 component 的真实 package.json 值，硬编码会随发版漂移。
+import { componentVersion } from '@yuku123/z-qa-component/pages'
 
 class ErrorBoundary extends Component<any, any> {
     constructor(props: any) { super(props); this.state = { err: null } }
@@ -16,12 +18,14 @@ class ErrorBoundary extends Component<any, any> {
 }
 
 function NotFound() {
+    // §11：菜单跳转必须走 navigate，整页刷新会丢 React state 与 SPA 已加载的 chunk。
+    const navigate = useNavigate();
     return (
         <Result
             status="404"
             title="页面不存在"
             subTitle="路由表里没有这条路径。"
-            extra={<Button type="primary" onClick={() => { window.location.href = '/z-qa/home' }}>去首页</Button>}
+            extra={<Button type="primary" onClick={() => navigate(menuItems[0].key)}>去首页</Button>}
         />
     )
 }
@@ -36,7 +40,7 @@ function ProtectedShell() {
 
     useEffect(() => {
         if (!localStorage.getItem('token')) {
-            window.location.replace('/z-qa/login')
+            window.location.replace(LOGIN_PATH)
             return
         }
         const raw = localStorage.getItem('userInfo')
@@ -51,7 +55,12 @@ function ProtectedShell() {
             menuItems={menuItems}
             appTitle="z-qa 测试平台"
             appShort="z-qa"
-            appVersion="0.1.1"
+            appVersion={componentVersion}
+            appIcon={{
+                icon: <img src="/icon.png" alt="z-qa 测试平台" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 8 }} />,
+                color: '#10b981',
+                label: 'z-qa 测试平台',
+            }}
             appUser={user}
         />
     )
@@ -63,7 +72,7 @@ export default function App() {
         <ErrorBoundary>
             <BrowserRouter>
                 <Routes>
-                    <Route path="/z-qa/login" element={<LoginRoute />} />
+                    <Route path={LOGIN_PATH} element={<LoginRoute />} />
                     <Route element={<ProtectedShell />}>
                         <Route path="/" element={<Navigate to={menuItems[0].key} replace />} />
                         {routeTable.map((r) => (

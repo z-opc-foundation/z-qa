@@ -42,6 +42,7 @@ mvnw.cmd
 _frontend/**/node_modules/
 _frontend/**/dist/
 _frontend/**/.vite/
+_frontend/**/.mvn-node/
 node_modules/
 npm-debug.log*
 yarn-error.log*

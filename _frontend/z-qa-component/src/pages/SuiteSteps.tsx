@@ -6,7 +6,7 @@ import {useLocation, useNavigate, useParams} from 'react-router-dom';
 
 /**
  * 套件步骤编辑器 - 链路可视化雏形 (步骤列表, 后续可改 LogicFlow).
- * 路径: /tools/qa/suites/:id/steps
+ * 路径: /z-qa/suites/:id/steps
  */
 const SuiteSteps: React.FC = () => {
     const {id} = useParams<{ id: string }>();

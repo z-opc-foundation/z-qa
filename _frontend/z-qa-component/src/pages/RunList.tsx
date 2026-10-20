@@ -1,16 +1,19 @@
-import React, {useEffect, useState} from 'react';
-import {Button, Card, Progress, Space, Table, Tag, Tooltip} from 'antd';
+import React, {useEffect, useMemo, useState} from 'react';
+import {Button, Card, Input, Progress, Select, Space, Table, Tag, Tooltip} from 'antd';
+import {EmptyState} from '@yuku123/z-frontend-common/ui';
 import {EyeOutlined, FileSearchOutlined, ReloadOutlined} from '@ant-design/icons';
 import {runApi} from '../services/api';
 import {useNavigate} from 'react-router-dom';
 
 /**
  * 执行记录列表 + 实时状态轮询.
- * 路径: /tools/qa/runs
+ * 路径: /z-qa/runs
  */
 const RunList: React.FC = () => {
     const [runs, setRuns] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
+    const [keyword, setKeyword] = useState('');
+    const [status, setStatus] = useState<string | undefined>();
     const navigate = useNavigate();
 
     const load = async () => {
@@ -29,6 +32,16 @@ const RunList: React.FC = () => {
         return () => clearInterval(timer);
     }, []);
 
+    const filtered = useMemo(() => {
+        const kw = keyword.trim().toLowerCase();
+        return runs.filter((r) => {
+            if (status && r.status !== status) return false;
+            if (!kw) return true;
+            return [r.run_code, r.name, r.trigger_user].some(
+                (v) => v && String(v).toLowerCase().includes(kw));
+        });
+    }, [runs, keyword, status]);
+
     const statusColors: Record<string, string> = {
         success: 'success', failed: 'error', running: 'processing', pending: 'default', cancelled: 'warning',
     };
@@ -37,13 +50,41 @@ const RunList: React.FC = () => {
         <div style={{padding: 0}}>
             <Card
                 title={<Space><FileSearchOutlined/> 执行记录</Space>}
-                extra={<Button icon={<ReloadOutlined/>} onClick={load}>刷新</Button>}
+                extra={
+                    <Space>
+                        <Input.Search
+                            allowClear
+                            placeholder="搜 run_code / 套件 / 触发人"
+                            style={{width: 240}}
+                            onChange={(e) => setKeyword(e.target.value)}
+                        />
+                        <Select
+                            allowClear
+                            placeholder="状态"
+                            style={{width: 130}}
+                            value={status}
+                            onChange={setStatus}
+                            options={['pending', 'running', 'success', 'failed', 'cancelled'].map((v) => ({value: v, label: v}))}
+                        />
+                        <Button icon={<ReloadOutlined/>} onClick={load}>刷新</Button>
+                    </Space>
+                }
             >
                 <Table
                     rowKey="id"
-                    dataSource={runs}
+                    dataSource={filtered}
                     loading={loading}
-                    pagination={{pageSize: 20}}
+                    pagination={{
+                        pageSize: 20,
+                        showSizeChanger: true,
+                        pageSizeOptions: ['10', '20', '50', '100'],
+                        showTotal: (t) => `共 ${t} 条`,
+                    }}
+                    locale={{
+                        emptyText: runs.length === 0
+                            ? <EmptyState title="还没有执行记录" description="去「测试套件」页触发一次运行"/>
+                            : <EmptyState title="没有匹配的执行记录" description="换个关键词或清掉状态筛选"/>
+                    }}
                     columns={[
                         {
                             title: 'Run Code', dataIndex: 'run_code', width: 220,
@@ -91,7 +132,7 @@ const RunList: React.FC = () => {
                         {
                             title: '操作', width: 100, fixed: 'right',
                             render: (_, r) => (
-                                <Button size="small" icon={<EyeOutlined/>}
+                                <Button type="link" size="small" icon={<EyeOutlined/>}
                                         onClick={() => navigate(`/z-qa/runs/${r.id}`)}>详情</Button>
                             )
                         },

@@ -16,7 +16,9 @@
         模块结构:
           - z-qa-core : 套件/计划/执行引擎 (QaExecutionDispatcher + QaRunRunner + ApiStepExecutor
                         + QaFailureClassifier + QaStepStatus) + entity/mapper/service + DDL
-          - z-qa-web  : Spring Boot Controller 层 + AutoConfiguration (spring.factories)
+          - z-qa-web  : Spring Boot API 层（request/response DTO，DO 不出 Web 层）+ AutoConfiguration (spring.factories)
+          - z-qa-admin : 可执行管理端应用（SpringApplication 主类 + SPA 回落 + 前端打进 fat jar），
+                        按政策不入中央 bundle
     -->
     <parent>
         <groupId>io.github.yuku123</groupId>
@@ -67,6 +69,7 @@
     <modules>
         <module>z-qa-core</module>
         <module>z-qa-web</module>
+        <module>z-qa-admin</module>
     </modules>
 
     <properties>
@@ -102,6 +105,11 @@
             <dependency>
                 <groupId>io.github.yuku123</groupId>
                 <artifactId>z-qa-web</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.yuku123</groupId>
+                <artifactId>z-qa-admin</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -300,8 +308,12 @@
                         <configuration>
                             <publishingServerId>central</publishingServerId>
                             <!-- _frontend 只作前端上游副本，不是 maven 模块；
-                                 若将来加 example/admin 演示模块，必须在这里排除，
+                                 z-qa-admin 是可执行 fat jar（repackage 无 classifier），
+                                 不是别仓可引的库件，按政策不入中央 ⇒ 点名排除，
                                  否则会给 io.github.yuku123 多占一个不可复用的版本号 -->
+                            <excludeArtifacts>
+                                <excludeArtifact>z-qa-admin</excludeArtifact>
+                            </excludeArtifacts>
                             <tokenAuth>true</tokenAuth>
                             <autoPublish>true</autoPublish>
                             <waitUntil>uploaded</waitUntil>

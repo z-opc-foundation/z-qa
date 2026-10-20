@@ -2,6 +2,9 @@ import type { ComponentType } from 'react';
 import QAApp from './QAApp';
 
 export { configureQa } from './services/api';
+export { default as ComponentDoc } from './pages/ComponentDoc';
+/** 本组件包版本（lead 005 §12：宿主版本号走这里，不硬编码）。 */
+export { version as componentVersion } from '../package.json';
 
 /**
  * routes manifest（lead 005 §8.2/§9.3）。

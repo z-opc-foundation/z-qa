@@ -1,0 +1,68 @@
+# =============================================================================
+# z-qa 启动配置 (application.yml)
+# 敏感项一律走环境变量, 仓库内不落真实地址/密钥.
+# =============================================================================
+
+server:
+  port: 8083
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: z-qa
+  profiles:
+    active: dev
+  # SQL 会话工厂由 z-qa-web QaModuleDataSource 手工装配 (z.base.db.qa.*),
+  # spring/druid/mybatis-plus 的自动装配会在其注册前抢跑, 一律排除
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration
+      - com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure
+      - com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 100MB
+
+# ------------------------------------------------------------
+# 数据源: z-boot-datasource-starter ModuleDataSourceTemplate
+# 模块键 z.base.db.{module}.* 缺省时逐项回退 z.base.db.default.*
+#
+# default 段不是冗余: z-qa-core 传递引 z-msg-core（QaNotifyServiceImpl 走它的
+# MessageGateway），z-msg-web 会自建 dataSourceMsg 也要读同一套键。
+# 只配 qa.* 的话，msg 段会回落硬编码 localhost:3306，启动期直接
+# "Communications link failure" 挂掉。
+# ------------------------------------------------------------
+z:
+  base:
+    db:
+      default:
+        host: ${ZQA_DB_HOST:127.0.0.1}
+        port: ${ZQA_DB_PORT:3306}
+        database: ${ZQA_DB_NAME:z_qa}
+        username: ${ZQA_DB_USER:root}
+        password: ${ZQA_DB_PASSWORD:}
+      qa:
+        host: ${ZQA_DB_HOST:127.0.0.1}
+        port: ${ZQA_DB_PORT:3306}
+        database: ${ZQA_DB_NAME:z_qa}
+        username: ${ZQA_DB_USER:root}
+        password: ${ZQA_DB_PASSWORD:}
+
+# Knife4j (z-boot-web-starter 自带 knife4j-openapi3)
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+
+# Logging (log4j2, z-boot-web-starter 默认)
+logging:
+  level:
+    com.zifang.z.qa: info
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n'

@@ -16,7 +16,7 @@ import {useNavigate, useParams} from 'react-router-dom';
 
 /**
  * 执行详情 + 全链路报告 (含每步请求/响应/断言).
- * 路径: /tools/qa/runs/:id
+ * 路径: /z-qa/runs/:id
  */
 const RunDetail: React.FC = () => {
     const {id} = useParams<{ id: string }>();

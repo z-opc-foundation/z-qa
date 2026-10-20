@@ -9,12 +9,15 @@ import {
 } from '@ant-design/icons';
 import {dashboardApi, runApi} from '../services/api';
 import {defectLabel, defectTagColor} from '../services/stepStatus';
+import {EmptyState} from '@yuku123/z-frontend-common/ui';
+import {useNavigate} from 'react-router-dom';
 
 /**
  * 测试平台 Dashboard - 质量看板.
- * 路径: /tools/qa
+ * 路径: /z-qa/dashboard
  */
 const Dashboard: React.FC = () => {
+    const navigate = useNavigate();
     const [stats, setStats] = useState<any>(null);
     const [recentRuns, setRecentRuns] = useState<any[]>([]);
     const [topFailures, setTopFailures] = useState<any[]>([]);
@@ -130,7 +133,7 @@ const Dashboard: React.FC = () => {
                     <Card title="使用场景">
                         <p>💡 此平台用于对 <b>z-opc 自己</b> 做集成测试</p>
                         <p>📦 预设套件: <code>zopc-self-test</code> — admin/login → my-tenants → meta-app → jobinfo</p>
-                        <p>🧪 操作: 在 <a href="/tools/qa/suites">套件管理</a> 触发 "运行"</p>
+                        <p>🧪 操作: 在 <a onClick={() => navigate('/z-qa/suites')} style={{cursor: 'pointer'}}>套件管理</a> 触发 "运行"</p>
                     </Card>
                 </Col>
             </Row>
@@ -141,7 +144,7 @@ const Dashboard: React.FC = () => {
                     dataSource={topFailures}
                     size="small"
                     pagination={false}
-                    locale={{emptyText: '还没有失败步骤'}}
+                    locale={{emptyText: <EmptyState title="还没有失败步骤" description="套件全绿，或还没有执行记录"/>}}
                     columns={[
                         {
                             title: '步骤', dataIndex: 'step_name',
@@ -172,6 +175,7 @@ const Dashboard: React.FC = () => {
                     dataSource={recentRuns}
                     size="small"
                     pagination={false}
+                    locale={{emptyText: <EmptyState title="还没有执行记录" description="去「测试套件」页触发一次运行"/>}}
                     columns={[
                         {title: 'Run Code', dataIndex: 'run_code', width: 220},
                         {title: '套件', dataIndex: 'name'},

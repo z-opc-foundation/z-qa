@@ -1,19 +1,32 @@
 import axios from 'axios';
+import type {AxiosRequestConfig} from 'axios';
+
+/** 后端统一响应包（{code,msg,content,success}）。 */
+export interface QaResponse<T = any> {
+    code: number;
+    msg: string;
+    content: T;
+    success: boolean;
+}
 
 // lead 005 §9.3 终版：component 自洽——自带本域接口调用，前缀参数注入。
 // 宿主接一个 /api 反代到本域后端即可；默认 '/api'，可 configureQa({ apiBase }) 覆写。
 let apiBase = '/api';
 
-export function configureQa({ apiBase: base } = {}) {
+export function configureQa({ apiBase: base }: { apiBase?: string } = {}) {
     if (base !== undefined) apiBase = base;
 }
 
-// 轻封装：仅做 baseURL 拼接，不裹 unwrap/401 跳转（那是宿主 request 层的职责）。
+/** 轻封装：仅做 baseURL 拼接，不解包 content，也不做 401 跳转（那是宿主 request 层的职责）。 */
 const request = {
-    get: (url, config) => axios.get(apiBase + url, config),
-    post: (url, data, config) => axios.post(apiBase + url, data, config),
-    put: (url, data, config) => axios.put(apiBase + url, data, config),
-    delete: (url, config) => axios.delete(apiBase + url, config),
+    get: <T = any>(url: string, config?: AxiosRequestConfig) =>
+        axios.get(apiBase + url, config) as unknown as Promise<QaResponse<T>>,
+    post: <T = any>(url: string, data?: unknown, config?: AxiosRequestConfig) =>
+        axios.post(apiBase + url, data, config) as unknown as Promise<QaResponse<T>>,
+    put: <T = any>(url: string, data?: unknown, config?: AxiosRequestConfig) =>
+        axios.put(apiBase + url, data, config) as unknown as Promise<QaResponse<T>>,
+    delete: <T = any>(url: string, config?: AxiosRequestConfig) =>
+        axios.delete(apiBase + url, config) as unknown as Promise<QaResponse<T>>,
 };
 
 // ============ 套件 (Suite) ============
