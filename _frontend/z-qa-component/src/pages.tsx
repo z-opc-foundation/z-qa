@@ -3,6 +3,9 @@ import QAApp from './QAApp';
 
 export { configureQa } from './services/api';
 export { default as ComponentDoc } from './pages/ComponentDoc';
+// 主壳接线用的统一名（lead 008 §7 约定：各包主入口统一导出 ComponentDocPage）。
+// 与上面的 ComponentDoc 指向同一个组件，不是两份实现 —— 原名保留给已在用它的页面。
+export { default as ComponentDocPage } from './pages/ComponentDoc';
 /** 本组件包版本（lead 005 §12：宿主版本号走这里，不硬编码）。 */
 export { version as componentVersion } from '../package.json';
 
