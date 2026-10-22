@@ -1,6 +1,6 @@
 import React from 'react';
-import {Button, Card, Form, Input, message, Select, Table, Tabs, Tag} from 'antd';
-import {EmptyState} from '@yuku123/z-frontend-common/ui';
+import {Button, Card, Form, Input, message, Select, Tabs, Tag} from 'antd';
+import {ListTable} from '@yuku123/z-frontend-common/ui';
 import {e2eApi} from '../services/api';
 
 const E2ESessions: React.FC = () => {
@@ -50,21 +50,32 @@ const E2ESessions: React.FC = () => {
                                       <Form.Item name="sessionId" label="sessionId" rules={[{required: true}]}><Input type="number"/></Form.Item>
                                       <Form.Item><Button type="primary" htmlType="submit">查询</Button></Form.Item>
                                   </Form>
-                                  <Table style={{marginTop: 12}} dataSource={actions} rowKey="id"
-                                         locale={{emptyText: <EmptyState title="还没有操作记录" description="开启会话后执行动作，记录会出现在这里"/>}}
-                                         columns={[
-                                      {title: '顺序', dataIndex: 'step_no', width: 60},
-                                      {title: '动作', dataIndex: 'action_type', width: 100},
-                                      {title: '选择器', dataIndex: 'selector'},
-                                      {title: '值', dataIndex: 'action_value'},
-                                      {
-                                          title: '结果', dataIndex: 'result', width: 80,
-                                          render: (v) => v === 'pass' ? <Tag color="green">{v}</Tag> :
-                                              <Tag color="red">{v}</Tag>
-                                      },
-                                      {title: '截图', dataIndex: 'screenshot_oss_key'},
-                                      {title: '耗时', dataIndex: 'duration_ms', width: 80},
-                                  ]}/>
+                                  {/* 操作记录表走基座 ListTable（lead 008 §2 规则 2/3/4）：分页 / 过滤 / EmptyState 三件套。
+                                      原来这张表既没有分页（数据一多没法翻页），也没有过滤框。
+                                      页签本身已经嵌在「E2E 浏览器会话」这张 Card 里，
+                                      所以基座 Card 设成无边框，避免卡片套卡片。 */}
+                                  <ListTable
+                                      style={{marginTop: 12}}
+                                      rows={actions}
+                                      rowKey="id"
+                                      searchKeys="action_type,selector,action_value"
+                                      searchPlaceholder="按动作类型 / 选择器 / 值过滤"
+                                      emptyTitle="还没有操作记录"
+                                      emptyDescription="开启会话后执行动作，记录会出现在这里"
+                                      cardProps={{variant: 'borderless', styles: {body: {padding: 0}}}}
+                                      columns={[
+                                          {title: '顺序', dataIndex: 'step_no', width: 60},
+                                          {title: '动作', dataIndex: 'action_type', width: 100},
+                                          {title: '选择器', dataIndex: 'selector'},
+                                          {title: '值', dataIndex: 'action_value'},
+                                          {
+                                              title: '结果', dataIndex: 'result', width: 80,
+                                              render: (v) => v === 'pass' ? <Tag color="green">{v}</Tag> :
+                                                  <Tag color="red">{v}</Tag>
+                                          },
+                                          {title: '截图', dataIndex: 'screenshot_oss_key'},
+                                          {title: '耗时', dataIndex: 'duration_ms', width: 80},
+                                      ]}/>
                               </div>
                           ),
                       },
