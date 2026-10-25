@@ -108,7 +108,12 @@ const SuiteSteps: React.FC<{ id?: string }> = ({id: idProp}) => {
                 <Table
                     rowKey="step_no"
                     dataSource={steps}
-                    pagination={false}
+                    pagination={{
+                        pageSize: 20,
+                        showSizeChanger: true,
+                        pageSizeOptions: ['10', '20', '50', '100'],
+                        showTotal: (t) => `共 ${t} 条`,
+                    }}
                     size="small"
                     columns={[
                         {title: '#', dataIndex: 'step_no', width: 50},

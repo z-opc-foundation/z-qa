@@ -147,7 +147,12 @@ const RunDetail: React.FC<{ id?: string }> = ({id: idProp}) => {
                 <Table
                     rowKey="id"
                     dataSource={details}
-                    pagination={false}
+                    pagination={{
+                        pageSize: 20,
+                        showSizeChanger: true,
+                        pageSizeOptions: ['10', '20', '50', '100'],
+                        showTotal: (t) => `共 ${t} 条`,
+                    }}
                     size="small"
                     expandable={{
                         expandedRowRender: (d: any) => (

@@ -145,7 +145,8 @@ const Dashboard: React.FC = () => {
                     rowKey={(r: any) => `${r.step_no}-${r.step_name}-${r.defect_type}`}
                     dataSource={topFailures}
                     size="small"
-                    pagination={false}
+                    pagination={false /* §2 规则 2 豁免：后端 dashboardApi.topFailures() 固定返回
+                        失败次数倒序的 Top N 榜单，条数上限写死且不随业务量增长，不是需要翻页的全量列表 */}
                     locale={{emptyText: <EmptyState title="还没有失败步骤" description="套件全绿，或还没有执行记录"/>}}
                     columns={[
                         {
@@ -176,7 +177,8 @@ const Dashboard: React.FC = () => {
                     rowKey="id"
                     dataSource={recentRuns}
                     size="small"
-                    pagination={false}
+                    pagination={false /* §2 规则 2 豁免：runApi.list({limit: 10}) 只取最近 10 条，
+                        条数上限由请求参数写死且不变 */}
                     locale={{emptyText: <EmptyState title="还没有执行记录" description="去「测试套件」页触发一次运行"/>}}
                     columns={[
                         {title: 'Run Code', dataIndex: 'run_code', width: 220},
