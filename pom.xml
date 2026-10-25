@@ -73,8 +73,10 @@
     </modules>
 
     <properties>
-        <!-- CI-friendly 版本根 (发版改这一处即可) -->
-        <revision>1.0.1</revision>
+        <!-- CI-friendly 版本根 (发版改这一处即可)
+             ⚠ 1.0.1 已于 2026-09-29 发到 Central，那份 z-qa-web 是 Controller 还留在 core 时的字节
+               （解包零 Controller）⇒ 换 1.1.0 重发，不可覆盖 1.0.1。 -->
+        <revision>1.1.0</revision>
 
         <!-- 与父链同值、已删的键（连同引用它们的 <version> 一起删）：
              maven.compiler.source 8 / maven.compiler.target 8 / project.build.sourceEncoding UTF-8

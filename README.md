@@ -18,9 +18,9 @@
 |------|-----|
 | **仓库** | `z-qa`（根 POM `packaging=pom`，聚合 3 个模块：core / web / admin） |
 | **Maven 坐标** | `io.github.yuku123:z-qa` / `:z-qa-core` / `:z-qa-web`（`:z-qa-admin` 只在仓内，不入 Central） |
-| **当前版本** | `1.0.1`（根 POM `<revision>`，CI-friendly versions + `flatten-maven-plugin:1.7.3` 的 `oss` 模式；子 POM 一律 `${revision}`） |
+| **当前版本** | `1.1.0`（根 POM `<revision>`，CI-friendly versions + `flatten-maven-plugin:1.7.3` 的 `oss` 模式；子 POM 一律 `${revision}`） |
 | **父项目** | `io.github.yuku123:z-boot-parent:1.1.0`（`<relativePath/>` 留空，parent 在 repo1 不在磁盘；第三方地板与兄弟仓权威表均已并入 parent 自身） |
-| **Maven Central** | 已实测发布：`z-qa` / `z-qa-core` / `z-qa-web` 的 `1.0.0` 与 `1.0.1` 三份 POM 从 repo1 取回均为 `200` |
+| **Maven Central** | 已实测发布：`z-qa` / `z-qa-core` / `z-qa-web` 的 `1.0.0` 与 `1.0.1` 三份 POM 从 repo1 取回均为 `200`。⚠ `1.0.1` 的 `z-qa-web` 是 Controller 迁移前的字节（零 Controller），`1.1.0` 待发布 |
 | **默认端口** | `8083` —— `z-qa-admin/src/main/resources/application.yml`（可执行管理端）；被当库件引时端口由宿主应用决定 |
 | **运行口径** | Java 8（`java.version=1.8`、`maven.compiler.source/target=8`）· Spring Boot 2.7.18（版本由父链下发，本仓 POM 已删掉这些键） |
 | **最近更新** | 2026-10-19 |
@@ -136,7 +136,7 @@ mvn clean package                   # 完整构建：含前端，产出 z-qa-adm
 <dependency>
     <groupId>io.github.yuku123</groupId>
     <artifactId>z-qa-web</artifactId>   <!-- 传递带上 z-qa-core -->
-    <version>1.0.1</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 
@@ -149,7 +149,7 @@ mvn clean package                   # 完整构建：含前端，产出 z-qa-adm
 
 ```bash
 mvn clean package
-java -jar z-qa-admin/target/z-qa-admin-1.0.1.jar
+java -jar z-qa-admin/target/z-qa-admin-1.1.0.jar
 # 监听 8083；前端在 /z-qa/**，接口在 /api/qa/**
 ```
 
@@ -339,7 +339,9 @@ BUILD SUCCESS，判「发出去了」只认 repo1 的状态码）；已发布版
 所以入库件/发布件是 self-contained 的子 POM。
 
 当前实测状态：`io.github.yuku123` 下 `z-qa`（pom）、`z-qa-core`、`z-qa-web` 的 **1.0.0 与 1.0.1** 均可从 repo1 取到
-（1.0.1 来自 `ed5a00f`「抬版本 1.0.0 -> 1.0.1（1.0.19 批量发布）」）。
+（1.0.1 来自 `ed5a00f`「抬版本 1.0.0 -> 1.0.1（1.0.19 批量发布）」；它仍是 Controller 迁移前的字节）。
+**1.1.0 尚未发布**：Controller 迁到 `z-qa-web` 的重构（`5cd5dcf`）发生在 1.0.1 发布之后，中央那份装进宿主后
+`/api/qa/**` 依然全 404 ⇒ 消费方必须等 1.1.0 发上 Central 后才改用新坐标。
 
 ---
 
