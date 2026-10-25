@@ -13,14 +13,18 @@ import {
 import {runApi} from '../services/api';
 import {defectLabel, defectTagColor, isFailStatus, stepStatusLabel, stepStatusTagColor} from '../services/stepStatus';
 import {useNavigate, useParams} from 'react-router-dom';
+import {useQaBase} from '../qaBase';
 
 /**
  * 执行详情 + 全链路报告 (含每步请求/响应/断言).
  * 路径: /z-qa/runs/:id
  */
-const RunDetail: React.FC = () => {
-    const {id} = useParams<{ id: string }>();
+const RunDetail: React.FC<{ id?: string }> = ({id: idProp}) => {
+    // 宿主可能不用 <Route :id> 分发（Z-Team 工作台按 pathname 直接渲染），id 由宿主传入。
+    const {id: routeId} = useParams<{ id: string }>();
+    const id = idProp ?? routeId;
     const navigate = useNavigate();
+    const qaRoot = useQaBase();
     const [run, setRun] = useState<any>(null);
     const [details, setDetails] = useState<any[]>([]);
     const [status, setStatus] = useState<any>(null);
@@ -80,7 +84,7 @@ const RunDetail: React.FC = () => {
     return (
         <div style={{padding: 0}}>
             <Space style={{marginBottom: 16}}>
-                <Button icon={<ArrowLeftOutlined/>} onClick={() => navigate('/z-qa/runs')}>返回</Button>
+                <Button icon={<ArrowLeftOutlined/>} onClick={() => navigate(`${qaRoot}/runs`)}>返回</Button>
                 <Button icon={<ReloadOutlined/>} onClick={load}>刷新</Button>
                 {abortable && (
                     <Popconfirm title="中止后剩余步骤记为跳过，确认？" okText="中止" okButtonProps={{danger: true}}

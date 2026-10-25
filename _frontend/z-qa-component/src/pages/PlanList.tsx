@@ -4,6 +4,7 @@ import {EmptyState} from '@yuku123/z-frontend-common/ui';
 import {DeleteOutlined, EditOutlined, PlayCircleOutlined, PlusOutlined, ReloadOutlined, ScheduleOutlined} from '@ant-design/icons';
 import {planApi, suiteApi} from '../services/api';
 import {useNavigate} from 'react-router-dom';
+import {useQaBase} from '../qaBase';
 
 /**
  * 测试计划管理.
@@ -18,6 +19,7 @@ const PlanList: React.FC = () => {
     const [keyword, setKeyword] = useState('');
     const [form] = Form.useForm();
     const navigate = useNavigate();
+    const qaRoot = useQaBase();
 
     const load = async () => {
         setLoading(true);
@@ -97,7 +99,7 @@ const PlanList: React.FC = () => {
             }
             const run = res?.content;
             message.success(`已触发: ${run?.run_code}`);
-            navigate(`/z-qa/runs/${run?.id}`);
+            navigate(`${qaRoot}/runs/${run?.id}`);
         } catch (e: any) {
             message.error('触发失败: ' + (e?.message || e));
         }

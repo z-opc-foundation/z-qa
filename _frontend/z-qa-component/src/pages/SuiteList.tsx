@@ -12,6 +12,7 @@ import {
 } from '@ant-design/icons';
 import {runApi, suiteApi} from '../services/api';
 import {useNavigate} from 'react-router-dom';
+import {useQaBase} from '../qaBase';
 
 /**
  * 测试套件管理 - 列表 + CRUD + 运行触发.
@@ -26,6 +27,7 @@ const SuiteList: React.FC = () => {
     const [category, setCategory] = useState<string | undefined>();
     const [form] = Form.useForm();
     const navigate = useNavigate();
+    const qaRoot = useQaBase();
 
     const load = async () => {
         setLoading(true);
@@ -99,14 +101,14 @@ const SuiteList: React.FC = () => {
             const res = await runApi.trigger(s.id, s.env_code, ui.username || 'admin', 'manual');
             const run = res?.content;
             message.success(`已触发: ${run?.run_code}`);
-            navigate(`/z-qa/runs/${run?.id}`);
+            navigate(`${qaRoot}/runs/${run?.id}`);
         } catch (e: any) {
             message.error('运行失败: ' + (e?.message || e));
         }
     };
 
     const handleViewSteps = (s: any) => {
-        navigate(`/z-qa/suites/${s.id}/steps`, {state: {suite: s}});
+        navigate(`${qaRoot}/suites/${s.id}/steps`, {state: {suite: s}});
     };
 
     const categoryColors: Record<string, string> = {

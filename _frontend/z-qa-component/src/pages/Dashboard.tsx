@@ -11,6 +11,7 @@ import {dashboardApi, runApi} from '../services/api';
 import {defectLabel, defectTagColor} from '../services/stepStatus';
 import {EmptyState} from '@yuku123/z-frontend-common/ui';
 import {useNavigate} from 'react-router-dom';
+import {useQaBase} from '../qaBase';
 
 /**
  * 测试平台 Dashboard - 质量看板.
@@ -18,6 +19,7 @@ import {useNavigate} from 'react-router-dom';
  */
 const Dashboard: React.FC = () => {
     const navigate = useNavigate();
+    const qaRoot = useQaBase();
     const [stats, setStats] = useState<any>(null);
     const [recentRuns, setRecentRuns] = useState<any[]>([]);
     const [topFailures, setTopFailures] = useState<any[]>([]);
@@ -133,7 +135,7 @@ const Dashboard: React.FC = () => {
                     <Card title="使用场景">
                         <p>💡 此平台用于对 <b>z-opc 自己</b> 做集成测试</p>
                         <p>📦 预设套件: <code>zopc-self-test</code> — admin/login → my-tenants → meta-app → jobinfo</p>
-                        <p>🧪 操作: 在 <a onClick={() => navigate('/z-qa/suites')} style={{cursor: 'pointer'}}>套件管理</a> 触发 "运行"</p>
+                        <p>🧪 操作: 在 <a onClick={() => navigate(`${qaRoot}/suites`)} style={{cursor: 'pointer'}}>套件管理</a> 触发 "运行"</p>
                     </Card>
                 </Col>
             </Row>

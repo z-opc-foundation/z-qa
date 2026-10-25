@@ -3,15 +3,19 @@ import {Alert, Button, Card, Form, Input, InputNumber, message, Modal, Select, S
 import {ArrowDownOutlined, ArrowUpOutlined, DeleteOutlined, PlusOutlined, SaveOutlined} from '@ant-design/icons';
 import {suiteApi} from '../services/api';
 import {useLocation, useNavigate, useParams} from 'react-router-dom';
+import {useQaBase} from '../qaBase';
 
 /**
  * 套件步骤编辑器 - 链路可视化雏形 (步骤列表, 后续可改 LogicFlow).
  * 路径: /z-qa/suites/:id/steps
  */
-const SuiteSteps: React.FC = () => {
-    const {id} = useParams<{ id: string }>();
+const SuiteSteps: React.FC<{ id?: string }> = ({id: idProp}) => {
+    // 宿主可能不用 <Route :id> 分发（Z-Team 工作台按 pathname 直接渲染），id 由宿主传入。
+    const {id: routeId} = useParams<{ id: string }>();
+    const id = idProp ?? routeId;
     const location = useLocation();
     const navigate = useNavigate();
+    const qaRoot = useQaBase();
     const suite = (location.state as any)?.suite;
     const [steps, setSteps] = useState<any[]>([]);
     const [editing, setEditing] = useState<any>(null);
@@ -89,7 +93,7 @@ const SuiteSteps: React.FC = () => {
                 title={`套件步骤 — ${suite?.name || id}`}
                 extra={
                     <Space>
-                        <Button onClick={() => navigate('/z-qa/suites')}>返回</Button>
+                        <Button onClick={() => navigate(`${qaRoot}/suites`)}>返回</Button>
                         <Button icon={<PlusOutlined/>} onClick={handleAdd}>新增步骤</Button>
                         <Button type="primary" icon={<SaveOutlined/>} onClick={handleSaveAll}>保存全部</Button>
                     </Space>

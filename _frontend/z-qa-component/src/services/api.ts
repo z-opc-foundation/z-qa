@@ -17,16 +17,22 @@ export function configureQa({ apiBase: base }: { apiBase?: string } = {}) {
     if (base !== undefined) apiBase = base;
 }
 
-/** 轻封装：仅做 baseURL 拼接，不解包 content，也不做 401 跳转（那是宿主 request 层的职责）。 */
+/**
+ * 轻封装：拼 baseURL + 取 response.data（后端统一响应包 {code,msg,content,success}）。
+ * 页面统一读 `res.content`，所以这里必须解出 AxiosResponse.data；不做 401 跳转
+ * （那是宿主 request 层的职责）。
+ */
+const unwrap = <T>(p: Promise<{ data: QaResponse<T> }>) => p.then(r => r.data);
+
 const request = {
     get: <T = any>(url: string, config?: AxiosRequestConfig) =>
-        axios.get(apiBase + url, config) as unknown as Promise<QaResponse<T>>,
+        unwrap<T>(axios.get(apiBase + url, config)),
     post: <T = any>(url: string, data?: unknown, config?: AxiosRequestConfig) =>
-        axios.post(apiBase + url, data, config) as unknown as Promise<QaResponse<T>>,
+        unwrap<T>(axios.post(apiBase + url, data, config)),
     put: <T = any>(url: string, data?: unknown, config?: AxiosRequestConfig) =>
-        axios.put(apiBase + url, data, config) as unknown as Promise<QaResponse<T>>,
+        unwrap<T>(axios.put(apiBase + url, data, config)),
     delete: <T = any>(url: string, config?: AxiosRequestConfig) =>
-        axios.delete(apiBase + url, config) as unknown as Promise<QaResponse<T>>,
+        unwrap<T>(axios.delete(apiBase + url, config)),
 };
 
 // ============ 套件 (Suite) ============

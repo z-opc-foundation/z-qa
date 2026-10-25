@@ -4,6 +4,7 @@ import {EmptyState} from '@yuku123/z-frontend-common/ui';
 import {EyeOutlined, FileSearchOutlined, ReloadOutlined} from '@ant-design/icons';
 import {runApi} from '../services/api';
 import {useNavigate} from 'react-router-dom';
+import {useQaBase} from '../qaBase';
 
 /**
  * 执行记录列表 + 实时状态轮询.
@@ -15,6 +16,7 @@ const RunList: React.FC = () => {
     const [keyword, setKeyword] = useState('');
     const [status, setStatus] = useState<string | undefined>();
     const navigate = useNavigate();
+    const qaRoot = useQaBase();
 
     const load = async () => {
         setLoading(true);
@@ -133,7 +135,7 @@ const RunList: React.FC = () => {
                             title: '操作', width: 100, fixed: 'right',
                             render: (_, r) => (
                                 <Button type="link" size="small" icon={<EyeOutlined/>}
-                                        onClick={() => navigate(`/z-qa/runs/${r.id}`)}>详情</Button>
+                                        onClick={() => navigate(`${qaRoot}/runs/${r.id}`)}>详情</Button>
                             )
                         },
                     ]}
