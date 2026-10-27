@@ -1,21 +1,11 @@
-import { Component, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { BrowserRouter, Navigate, Route, Routes, useNavigate } from 'react-router-dom'
-import { AppLayout } from '@yuku123/z-frontend-common'
+import { AppLayout, ErrorBoundary } from '@yuku123/z-frontend-common'
 import { LOGIN_PATH, menuItems, routeTable } from './pages-manifest'
 import LoginPage from './LoginPage'
 import { Button, Result } from 'antd'
 // §12：版本号取自 component 的真实 package.json 值，硬编码会随发版漂移。
 import { componentVersion } from '@yuku123/z-qa-component/pages'
-
-class ErrorBoundary extends Component<any, any> {
-    constructor(props: any) { super(props); this.state = { err: null } }
-    static getDerivedStateFromError(err: Error) { return { err } }
-    componentDidCatch(err: Error, info: unknown) { console.error('[App ErrorBoundary]', err, info) }
-    render() {
-        if ((this.state as any).err) return <pre style={{ padding: 24, color: 'red', whiteSpace: 'pre-wrap' }}>{String((this.state as any).err?.stack || (this.state as any).err)}</pre>
-        return this.props.children
-    }
-}
 
 function NotFound() {
     // §11：菜单跳转必须走 navigate，整页刷新会丢 React state 与 SPA 已加载的 chunk。
