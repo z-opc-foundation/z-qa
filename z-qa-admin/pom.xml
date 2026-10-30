@@ -11,7 +11,7 @@
 
     <artifactId>z-qa-admin</artifactId>
 
-    <name>z-qa-admin</name>
+    <name>z-qa :: admin</name>
     <description>测试平台可执行管理端应用（ZQaAdminApplication 主类 + SPA 回落），
         repackage 成 fat jar 直接跑，不是给别仓引的库件。
         按组织规范可执行应用归 -admin（-web 才是被引的库件），根 pom 的 central profile 把它排除出 bundle。</description>

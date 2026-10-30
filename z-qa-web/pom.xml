@@ -13,12 +13,13 @@
 
     <artifactId>z-qa-web</artifactId>
     <packaging>jar</packaging>
-    <name>z-qa-web (Spring Boot AutoConfiguration + module datasource wiring)</name>
+    <name>z-qa :: web</name>
     <description>
         Z-QA Web 层: QaAutoConfiguration（@ComponentScan com.zifang.z.qa.web / com.zifang.z.qa.admin,
         经 META-INF/spring.factories 注册 EnableAutoConfiguration）+ QaModuleDataSource
         （z.base.db.qa.* 独立库, key = "qa"）+ @MapperScan(sqlSessionFactoryRef = "sqlSessionFactoryQa")。
         宿主应用 import 本模块即得到全套 /api/qa/** 端点，无需 @ComponentScan。
+        Spring Boot AutoConfiguration + module datasource wiring
     </description>
 
     <url>https://github.com/z-opc-foundation/z-qa/tree/main/z-qa-web</url>

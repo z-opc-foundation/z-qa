@@ -13,12 +13,13 @@
 
     <artifactId>z-qa-core</artifactId>
     <packaging>jar</packaging>
-    <name>z-qa-core (Test Platform Domain: entity / mapper / service / engine)</name>
+    <name>z-qa :: core</name>
     <description>
         Z-QA 核心层: 用例/套件/计划/环境/执行的 entity + mapper + service,
         以及单一执行引擎（QaExecutionDispatcher 建 run 行 → QaRunRunner 异步跑步骤,
         ApiStepExecutor 走 HTTP 链路, QaFailureClassifier 十态状态机 + 缺陷三分类 +
         retry/failFast/abort 语义）。附带 DDL 与自检 SQL 于 db/ 资源目录。
+        Test Platform Domain: entity / mapper / service / engine
     </description>
 
     <url>https://github.com/z-opc-foundation/z-qa/tree/main/z-qa-core</url>

@@ -31,11 +31,12 @@
     <artifactId>z-qa</artifactId>
     <version>${revision}</version>
     <packaging>pom</packaging>
-    <name>z-qa (Test Platform: Suite / Plan / Run / Dashboard)</name>
+    <name>z-qa :: root</name>
     <description>
         Z-QA: 测试平台（对标 TestRail / MeterSphere）。
         步骤式 API 链路执行 + 套件/计划/定时/报告/质量看板，十态步骤状态机与缺陷三分类，
         中止与 failFast 语义，Spring Boot AutoConfiguration 一行 import 即可启用。
+        Test Platform: Suite / Plan / Run / Dashboard
     </description>
 
     <url>https://github.com/z-opc-foundation/z-qa</url>
