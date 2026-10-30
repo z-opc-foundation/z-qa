@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import dts from 'vite-plugin-dts';
 import path from 'path';
+import {safeEmptyOutDir} from '../../build-tools/safe-vite-plugin.mjs'
 
 // z-qa 组件层 — Vite library mode 双入口（lead 005 §1.2/§8.2/§9）
 //   .      → dist/index.js  （QAApp + services 桶导出）
@@ -9,7 +10,7 @@ import path from 'path';
 // d.ts 走 rollupTypes 打成单文件直接落在 dist/ 根，与 package.json 的 types 字段对齐
 // （非 rollup 模式会落到 dist/src/**，manifest 会指向不存在的路径）。
 export default defineConfig({
-    plugins: [react(), dts({ tsconfigPath: path.resolve(__dirname, 'tsconfig.json'), rollupTypes: true })],
+    plugins: [safeEmptyOutDir(), react(), dts({ tsconfigPath: path.resolve(__dirname, 'tsconfig.json'), rollupTypes: true })],
     build: {
         lib: {
             entry: {
@@ -19,7 +20,7 @@ export default defineConfig({
             formats: ['es'],
         },
         outDir: 'dist',
-        emptyOutDir: true,
+        emptyOutDir: false,
         sourcemap: false,
         rollupOptions: {
             // rollup 的 external 是精确字符串匹配，不是前缀匹配：只写主桶的话，

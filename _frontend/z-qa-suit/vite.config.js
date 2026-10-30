@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
+import {safeEmptyOutDir} from '../../build-tools/safe-vite-plugin.mjs'
 
 // z-qa 独立运行壳。dev 代理 /api → z-opc main-starter(:8888)，qa 后端目前宿主在内。
 //
@@ -13,7 +14,7 @@ const BASE_PATH = process.env.BASE_PATH || '/'
 
 export default defineConfig({
     base: BASE_PATH,
-    plugins: [react()],
+    plugins: [safeEmptyOutDir(), react()],
     resolve: {
         dedupe: ['react', 'react-dom', 'react-router-dom', 'antd', '@ant-design/icons', 'axios'],
         alias: LOCAL_SIBLINGS

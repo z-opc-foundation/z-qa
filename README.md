@@ -18,11 +18,11 @@
 |------|-----|
 | **仓库** | `z-qa`（根 POM `packaging=pom`，聚合 3 个模块：core / web / admin） |
 | **Maven 坐标** | `io.github.yuku123:z-qa` / `:z-qa-core` / `:z-qa-web`（`:z-qa-admin` 只在仓内，不入 Central） |
-| **当前版本** | `1.1.0`（根 POM `<revision>`，CI-friendly versions + `flatten-maven-plugin:1.7.3` 的 `oss` 模式；子 POM 一律 `${revision}`） |
+| **当前版本** | `1.1.1`（根 POM `<revision>`，CI-friendly versions + `flatten-maven-plugin:1.7.3` 的 `oss` 模式；子 POM 一律 `${revision}`） |
 | **父项目** | `io.github.yuku123:z-boot-parent:1.2.0`（`<relativePath/>` 留空，parent 在 repo1 不在磁盘；第三方地板与兄弟仓权威表均已并入 parent 自身） |
-| **Maven Central** | 已实测发布：`z-qa` / `z-qa-core` / `z-qa-web` 的 `1.0.0` 与 `1.0.1` 三份 POM 从 repo1 取回均为 `200`。⚠ `1.0.1` 的 `z-qa-web` 是 Controller 迁移前的字节（零 Controller），`1.1.0` 待发布 |
+| **Maven Central** | 已实测发布：`z-qa` / `z-qa-core` / `z-qa-web` 的 `1.0.0` / `1.0.1` / `1.1.1` 三组 POM 从 repo1 取回均为 `200`。⚠ `1.0.1` 的 `z-qa-web` 是 Controller 迁移前的字节（零 Controller）；`1.1.1` 起含 Controller（`z-qa-web` 有 19 条 FQCN 登记在 `AutoConfiguration.imports`） |
 | **默认端口** | `8083` —— `z-qa-admin/src/main/resources/application.yml`（可执行管理端）；被当库件引时端口由宿主应用决定 |
-| **运行口径** | Java 8（`java.version=1.8`、`maven.compiler.source/target=8`）· Spring Boot 2.7.18（版本由父链下发，本仓 POM 已删掉这些键） |
+| **运行口径** | Java 17（`maven.compiler.source/target=17`，由父链 `z-boot-parent:1.2.0` 下发）· Spring Boot 3.3.13（版本由父链下发，本仓 POM 已删掉这些键）。⚠ 2026-10-30 前的旧口径（Java 8 / Boot 2.7.18）已随 SB3 火车作废 |
 | **最近更新** | 2026-10-19 |
 
 ---
@@ -93,16 +93,16 @@ z-qa/
 
 | 层级 | 技术（均为 POM / 源码实测） |
 |------|------|
-| 语言 / 运行时 | Java 8（口径由父链 `z-boot-parent` 下发） |
-| 框架 | Spring Boot 2.7.18 · `spring-boot-starter-web`（`z-qa-web`） |
-| 持久层 | MyBatis-Plus 3.5.7（地板）+ `mybatis-spring` 压回 **2.1.2**（本仓 DM 直写，防父链回压） |
-| 数据源 | Druid，经 `z-boot-datasource-starter`（`${z-boot.version}`=1.0.21）的 `ModuleDataSourceTemplate` |
+| 语言 / 运行时 | Java 17（口径由父链 `z-boot-parent:1.2.0` 下发） |
+| 框架 | Spring Boot 3.3.13 · `spring-boot-starter-web`（`z-qa-web`） |
+| 持久层 | MyBatis-Plus 3.5.7（`mybatis-plus-spring-boot3-starter`，Boot 3 专用 starter） |
+| 数据源 | Druid 1.2.23（`druid-spring-boot-3-starter`），经 `z-boot-datasource-starter` 的 `ModuleDataSourceTemplate` |
 | 数据库 | MySQL，`mysql-connector-j` 压回 **8.0.33** 并沿用 Boot 受管项的 `protobuf-java` exclusion（8.4 换 driver 行为且整件拖进 protobuf） |
 | HTTP 调用 | JDK `HttpURLConnection`（`ApiStepExecutor` / `QaE2eServiceImpl` 都是裸连，没有 RestTemplate/OkHttp） |
 | JSON | `z-util-parser-json`（`JsonUtil` / `JsonObject`，替掉 fastjson）+ 自研 `evaluateJsonPath` 的 `$.a.b` 子集 |
 | 通知 | `z-msg-core` + `z-boot-msg-starter`（`MessageGateway` / `EmailMessage` / 站内信 mapper） |
 | 对象存储 | `z-oss-core`（`IOssObjectService`，E2E 截图上传；可选依赖，缺 Bean 时降级占位 key） |
-| 日志 | Log4j2 2.25.4 + slf4j 1.7.36 单绑定链；`maven-enforcer-plugin:3.4.1` 在 `validate` 阶段禁掉 `log4j-to-slf4j`、`log4j-slf4j2-impl`、`spring-boot-starter-logging`、`ch.qos.logback:*`、`slf4j-log4j12`、`slf4j-simple` |
+| 日志 | Log4j2 2.25.4 + slf4j **2.0.17** 单绑定链（Boot 3 起 slf4j 2.x，`log4j-slf4j2-impl` 是**正规绑定**不再被禁）；`maven-enforcer-plugin:3.4.1` 在 `validate` 阶段禁掉 `log4j-to-slf4j`、`spring-boot-starter-logging`、`ch.qos.logback:*`、`slf4j-log4j12`、`slf4j-simple` |
 | 定时 | 自实现 cron 解析 + Spring `@Scheduled`（无 Quartz / cron-utils） |
 | 测试 | JUnit Jupiter（`junit-jupiter-api` + `-engine` 都在，避免 surefire「0 个测试」静默通过） |
 | 构建 / 发布 | Maven + `flatten-maven-plugin:1.7.3`(oss) · `central-publishing-maven-plugin:0.7.0` · source 3.3.1 / javadoc 3.11.2 / gpg 3.2.7（全部挂在 `central` profile） |
@@ -136,20 +136,25 @@ mvn clean package                   # 完整构建：含前端，产出 z-qa-adm
 <dependency>
     <groupId>io.github.yuku123</groupId>
     <artifactId>z-qa-web</artifactId>   <!-- 传递带上 z-qa-core -->
-    <version>1.1.0</version>
+    <version>1.1.1</version>
 </dependency>
 ```
 
-`spring.factories` 在 `EnableAutoConfiguration` 键下用 **FQCN** 逐个注册全部业务 bean
+`META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports` 用 **FQCN** 逐个注册全部业务 bean
 （`QaModuleDataSource` / `QaAsyncConfig` / 3 个 engine / 4 个 ServiceImpl / 9 个 `*Api`），
 **刻意不用 `@ComponentScan`** —— 宿主若也扫到本包会双注册，同类型 bean 出现两份，
 直接 `NoUniqueBeanDefinitionException`。宿主因此**不需要**（也不应该）扫本包。
+
+> ⚠ **Boot 3 迁移（2026-10-30）**：注册入口从 `spring.factories` 的 `EnableAutoConfiguration` 键
+> 迁到 `AutoConfiguration.imports` —— **Boot 3 不再读 `spring.factories` 的该键**。
+> 只带 `spring.factories` 的 jar 在 Boot 3 里等于**完全不装配**，且启动日志一片安静（静默失效，不是报错）。
+> 消费方若见到下游 `NoSuchBeanDefinitionException`，先查这份 imports 是否登记齐全。
 
 **方式 B：独立跑**（本仓自带管理台）：
 
 ```bash
 mvn clean package
-java -jar z-qa-admin/target/z-qa-admin-1.1.0.jar
+java -jar z-qa-admin/target/z-qa-admin-1.1.1.jar
 # 监听 8083；前端在 /z-qa/**，接口在 /api/qa/**
 ```
 
@@ -308,11 +313,12 @@ mvn test
   步骤明细（`z_qa_run_detail`）的证据只有请求/响应/变量/断言四件套。
 - **库件与应用分离**：`z-qa-core` / `z-qa-web` 是给别仓引的 library jar；可执行应用是 `z-qa-admin`（带 `ZQaAdminApplication` 主类与 `application.yml`，repackage 成 fat jar，容器内 8080 / 宿主 8083），按政策不入 Central bundle。
 - **定时扫描要靠宿主开启 `@EnableScheduling`**（本仓只带 `@EnableAsync`）。
-- **日志绑定链唯一性钉在构建上**：`z-msg-core` 传递来的 `log4j-slf4j2-impl` 已被 `z-qa-core` POM 排掉，
-  Spring Boot 2.7 的栈是 slf4j 1.7.36，两个 jar 共用 `org.apache.logging.slf4j` 包名，同时上 classpath
-  会在启动时 `NoSuchMethodError`；这条约束由根 POM 的 `maven-enforcer-plugin` 在 `validate` 阶段兜住。
-- **根 POM 顶注仍写「2026-09-29 起消费入口走 z-boot-parent:1.0.19」**，而 `<parent>` 实际已是 `1.1.0`
-  （HEAD 提交 `ac4bc9d`「消费入口抬到 z-boot-parent:1.0.21（消费者轮）」）—— 读 POM 注释时以 `<parent>` 为准。
+- **日志绑定链唯一性钉在构建上**：`z-msg-core` 传递来的 `log4j-slf4j2-impl` 与 Boot 3 自带的
+  `spring-boot-starter-log4j2` 会带来**两份** Log4j2 绑定；Boot 3 的栈是 slf4j **2.0.17**，
+  两个 jar 共用 `org.apache.logging.slf4j` 包名，同时上 classpath 会在启动时 `NoSuchMethodError`；
+  这条约束由根 POM 的 `maven-enforcer-plugin` 在 `validate` 阶段兜住。
+- **根 POM 顶注仍写「2026-09-29 起消费入口走 z-boot-parent:1.0.19」**，而 `<parent>` 实际已是 `1.2.0`
+  （2026-10-30 SB3 火车）—— 读 POM 注释时以 `<parent>` 为准。
 
 ---
 
@@ -338,10 +344,11 @@ BUILD SUCCESS，判「发出去了」只认 repo1 的状态码）；已发布版
 `flatten-maven-plugin`（`oss` 模式）在 process-resources 阶段把 `${revision}` 展开成字面量并剥掉 `<parent>`，
 所以入库件/发布件是 self-contained 的子 POM。
 
-当前实测状态：`io.github.yuku123` 下 `z-qa`（pom）、`z-qa-core`、`z-qa-web` 的 **1.0.0 与 1.0.1** 均可从 repo1 取到
+当前实测状态：`io.github.yuku123` 下 `z-qa`（pom）、`z-qa-core`、`z-qa-web` 的 **1.0.0 / 1.0.1 / 1.1.1** 均可从 repo1 取到
 （1.0.1 来自 `ed5a00f`「抬版本 1.0.0 -> 1.0.1（1.0.19 批量发布）」；它仍是 Controller 迁移前的字节）。
-**1.1.0 尚未发布**：Controller 迁到 `z-qa-web` 的重构（`5cd5dcf`）发生在 1.0.1 发布之后，中央那份装进宿主后
-`/api/qa/**` 依然全 404 ⇒ 消费方必须等 1.1.0 发上 Central 后才改用新坐标。
+**1.1.1 已发布**（2026-10-30，commit `09fef303`）：Controller 迁到 `z-qa-web` 的重构（`5cd5dcf`）+
+Boot 3 的 `AutoConfiguration.imports` 补登 19 条 FQCN 都在这一版里 ⇒ 消费方改用 `1.1.1` 即可拿到 `/api/qa/**`。
+⚠ `1.1.0` 被 Central 占位跳号（发布流程检测到已占用），中央没有这份版本，消费方不要写它。
 
 ---
 
