@@ -63,3 +63,10 @@ logs/
 /.cache/
 **/__pycache__/
 *.pyc
+
+# 2026-10-30 SB3 火车发版配套：「只移不删」产生的构建备份目录
+# （本机安全闸拦 vite emptyOutDir 的批量删除 ⇒ 构建脚本改为 mv 出 dist.bak-*）
+dist.bak-*/
+**/dist.bak-*/
+workspace.stale-*/
+**/workspace.stale-*/

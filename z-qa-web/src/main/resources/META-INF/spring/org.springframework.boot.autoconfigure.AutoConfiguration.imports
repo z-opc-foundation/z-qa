@@ -1,0 +1,32 @@
+# 业务 bean 全部走 FQCN 显式注册（lead 007 §4.2）。刻意不用 @ComponentScan：
+# 宿主若也扫到本包会双注册，同类型 bean 出现两份 → NoUniqueBeanDefinitionException。
+#
+# ⚠ 2026-10-30 补全：Boot 3 火车把 META-INF/spring.factories 迁到本文件时，
+#    一度只落了 com.zifang.z.qa.web.api.SuiteApi 一条，其余 18 条 FQCN 注册**全丢**。
+#    后果（z-opc 主壳 Boot 3 fat jar 本地容器冒烟实测）：SuiteApi 被注册但它
+#    @Autowired 的 QaSuiteMapper 无人注册 ⇒ 启动崩在
+#    "No qualifying bean of type 'com.zifang.z.qa.admin.domain.mapper.QaSuiteMapper'"
+#    （QaSuiteMapper 物理在 z-qa-core 的 com.zifang.z.qa.admin.domain.mapper，
+#      而 z-qa 全仓无 @ComponentScan / @MapperScan ⇒ 只能靠本文件的 FQCN 显式注册兜住）
+#    现按 git show HEAD:z-qa-web/src/main/resources/META-INF/spring.factories 原样补回 19 条。
+#    ⚠ 每一条都是「缺了就 NoSuchBeanDefinitionException」的硬依赖，**不可再删减**。
+#    （Spring Boot 读本文件时按 properties 语义跳过 # 注释行，注释安全。）
+com.zifang.z.qa.web.config.QaAutoConfiguration
+com.zifang.z.qa.web.config.QaModuleDataSource
+com.zifang.z.qa.admin.config.QaAsyncConfig
+com.zifang.z.qa.admin.engine.QaExecutionDispatcher
+com.zifang.z.qa.admin.engine.QaRunRunner
+com.zifang.z.qa.admin.engine.ApiStepExecutor
+com.zifang.z.qa.admin.service.impl.QaE2eServiceImpl
+com.zifang.z.qa.admin.service.impl.QaNotifyServiceImpl
+com.zifang.z.qa.admin.service.impl.QaReportServiceImpl
+com.zifang.z.qa.admin.service.impl.QaScheduleServiceImpl
+com.zifang.z.qa.web.api.CaseApi
+com.zifang.z.qa.web.api.DashboardApi
+com.zifang.z.qa.web.api.E2eApi
+com.zifang.z.qa.web.api.EnvApi
+com.zifang.z.qa.web.api.PlanApi
+com.zifang.z.qa.web.api.ReportApi
+com.zifang.z.qa.web.api.RunApi
+com.zifang.z.qa.web.api.ScheduleApi
+com.zifang.z.qa.web.api.SuiteApi

@@ -23,7 +23,7 @@
     <parent>
         <groupId>io.github.yuku123</groupId>
         <artifactId>z-boot-parent</artifactId>
-        <version>1.1.0</version>
+        <version>1.2.0</version>
         <relativePath/>
     </parent>
 
@@ -75,8 +75,16 @@
     <properties>
         <!-- CI-friendly 版本根 (发版改这一处即可)
              ⚠ 1.0.1 已于 2026-09-29 发到 Central，那份 z-qa-web 是 Controller 还留在 core 时的字节
-               （解包零 Controller）⇒ 换 1.1.0 重发，不可覆盖 1.0.1。 -->
-        <revision>1.1.0</revision>
+               （解包零 Controller）⇒ 换 1.1.0 重发，不可覆盖 1.0.1。
+             ⚠ 2026-10-30 抬 1.1.0 → 1.1.1：**SB3 火车全量迁移**（Boot 3.3.13 地板 +
+               javax.* → jakarta.* + spring.factories → AutoConfiguration.imports）。
+             1.1.1 的关键修复：Boot 3 迁移时 imports 文件**一度只落了 SuiteApi 一条**，
+             旧 spring.factories 里其余 18 条 FQCN 注册全丢 ⇒ z-opc 主壳 Boot 3 fat jar
+             本地容器冒烟启动崩在
+             "No qualifying bean of type 'com.zifang.z.qa.admin.domain.mapper.QaSuiteMapper'"
+             （本仓刻意不用 @ComponentScan，全靠 FQCN 显式注册 ⇒ 少一条就缺一个 bean）。
+             ⚠ 1.1.0 已被占位（Central 上 z-qa-web:1.1.0 在列）⇒ 同号不可重发。 -->
+        <revision>1.1.1</revision>
 
         <!-- 与父链同值、已删的键（连同引用它们的 <version> 一起删）：
              maven.compiler.source 8 / maven.compiler.target 8 / project.build.sourceEncoding UTF-8
@@ -286,11 +294,23 @@
                         <version>3.2.7</version>
                         <configuration>
                             <skip>${central.gpg.skip}</skip>
-                            <gpgArguments>
-                                <arg>--pinentry-mode</arg>
-                                <arg>loopback</arg>
-                                <arg>--no-tty</arg>
-                            </gpgArguments>
+                            <!-- 2026-10-30 修 gpg 签名（与 z-ctc 1.0.6 / z-util 1.2.12 / z-mist 1.0.5 实发同款根因）：
+                                 ① maven-gpg-plugin 会自己传 pinentry-mode 参数（值 error），
+                                    gpg 对同一选项取最后一次出现的值 ⇒ 调用方的 error 盖掉
+                                    wrapper 自己的 loopback ⇒ 报 "No pinentry" / Exit code: 2。
+                                    本仓旧口径把 pinentry-mode loopback 写进 gpgArguments 无效，
+                                    同样被插件后传的 error 盖掉。修法：wrapper 先剔除入参里的
+                                    pinentry-mode 整组，再以 loopback 追加
+                                    （见 _doc/003_script/gpg-with-passphrase.sh）。
+                                 ② 插件默认按 local-user=default 找密钥，本机密钥环里没有
+                                    名为 default 的密钥（只有 uid yuku123 / key A403FCCFD7EF5DA6）
+                                    ⇒ 显式钉 keyname。
+                                 ③ 口令不进 argv（ps 明文可见）⇒ 由 wrapper 从仓根 .env 读出后
+                                    以 passphrase 参数交给系统 gpg，且全程 batch + loopback。
+                                 注：XML 注释里不能出现连续两个减号，上面刻意用「pinentry-mode 参数」
+                                 /「local-user=default」措辞。 -->
+                            <keyname>A403FCCFD7EF5DA6</keyname>
+                            <executable>${maven.multiModuleProjectDirectory}/_doc/003_script/gpg-with-passphrase.sh</executable>
                         </configuration>
                         <executions>
                             <execution>
@@ -328,4 +348,10 @@
         </profile>
     </profiles>
 
+    <!-- 2026-10-30 Java17/SB3 火车：springfox 摘除后显式补依赖（版本走 z-boot-parent DM） -->
+    <dependencies>
+<dependency><groupId>io.swagger</groupId><artifactId>swagger-annotations</artifactId></dependency>
+    
+        <dependency><groupId>jakarta.annotation</groupId><artifactId>jakarta.annotation-api</artifactId></dependency>
+        </dependencies>
 </project>

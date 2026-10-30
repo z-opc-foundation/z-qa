@@ -19,7 +19,7 @@
 | **仓库** | `z-qa`（根 POM `packaging=pom`，聚合 3 个模块：core / web / admin） |
 | **Maven 坐标** | `io.github.yuku123:z-qa` / `:z-qa-core` / `:z-qa-web`（`:z-qa-admin` 只在仓内，不入 Central） |
 | **当前版本** | `1.1.0`（根 POM `<revision>`，CI-friendly versions + `flatten-maven-plugin:1.7.3` 的 `oss` 模式；子 POM 一律 `${revision}`） |
-| **父项目** | `io.github.yuku123:z-boot-parent:1.1.0`（`<relativePath/>` 留空，parent 在 repo1 不在磁盘；第三方地板与兄弟仓权威表均已并入 parent 自身） |
+| **父项目** | `io.github.yuku123:z-boot-parent:1.2.0`（`<relativePath/>` 留空，parent 在 repo1 不在磁盘；第三方地板与兄弟仓权威表均已并入 parent 自身） |
 | **Maven Central** | 已实测发布：`z-qa` / `z-qa-core` / `z-qa-web` 的 `1.0.0` 与 `1.0.1` 三份 POM 从 repo1 取回均为 `200`。⚠ `1.0.1` 的 `z-qa-web` 是 Controller 迁移前的字节（零 Controller），`1.1.0` 待发布 |
 | **默认端口** | `8083` —— `z-qa-admin/src/main/resources/application.yml`（可执行管理端）；被当库件引时端口由宿主应用决定 |
 | **运行口径** | Java 8（`java.version=1.8`、`maven.compiler.source/target=8`）· Spring Boot 2.7.18（版本由父链下发，本仓 POM 已删掉这些键） |
@@ -52,7 +52,7 @@
 
 ```
 z-qa/
-├── pom.xml                      # 根聚合 POM：parent=z-boot-parent:1.1.0，<revision> 统一版本，enforcer + flatten
+├── pom.xml                      # 根聚合 POM：parent=z-boot-parent:1.2.0，<revision> 统一版本，enforcer + flatten
 ├── LICENSE                      # Apache License 2.0 全文（见文末 License 一节的口径冲突）
 ├── Dockerfile                   # 基于 eclipse-temurin:8-jdk，拷 z-qa-admin 的 fat jar，容器内 8080
 ├── _doc/
@@ -123,10 +123,10 @@ mvn clean package                   # 完整构建：含前端，产出 z-qa-adm
 --registry=https://registry.npmmirror.com` + `npm run build`（不走 npmjs.org，理由见该 pom 注释），
 再把 `dist/` 复制进 `target/classes/static/`。
 
-第三方版本一律由 `z-boot-parent:1.1.0` 下发（第三方地板与兄弟仓权威表均已并进 parent 自身，
+第三方版本一律由 `z-boot-parent:1.2.0` 下发（第三方地板与兄弟仓权威表均已并进 parent 自身，
 `z-boot-dependencies` / `z-boot-fleet` 两个文件夹随 2026-10-08 火车制拓扑退役），
 模块 POM 里不应再出现字面版本钉（`mybatis-spring` / `mysql-connector-j` 两格是**刻意**压住的例外，见根 POM 注释）。
-若报找不到版本，先确认本地或镜像能解析到 `io.github.yuku123:z-boot-parent:1.1.0`。
+若报找不到版本，先确认本地或镜像能解析到 `io.github.yuku123:z-boot-parent:1.2.0`。
 
 ### 宿主应用接入
 
