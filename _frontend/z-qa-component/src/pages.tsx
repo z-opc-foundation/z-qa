@@ -25,3 +25,10 @@ export interface DomainRoute {
 export const routes: DomainRoute[] = [
     { path: '/z-qa/*', title: 'QA 测试', order: 900, Component: QAApp },
 ];
+
+/** 主壳 domainRoutes 聚合所需的最小 manifest（QAApp 自持内部路由，菜单只给一个入口） */
+export const appMeta = { title: 'z-qa 测试平台', short: 'z-qa' };
+
+export const menuItems = [
+    { key: '/z-qa', label: 'QA 测试' },
+];
