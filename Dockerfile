@@ -1,6 +1,5 @@
 # 基础镜像：Eclipse Temurin 8 JDK（支持 amd64/arm64）
-FROM eclipse-temurin:8-jdk
-
+FROM eclipse-temurin:17-jdk
 LABEL maintainer="zifang"
 
 # 设置时区 + 装 wget (供 HEALTHCHECK 使用)
