@@ -6,8 +6,9 @@
   "description": "z-qa 独立运行壳（lead 005 §9.1 suit：configure apiBase + 挂路由）。不发布 npm",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "typecheck": "tsc --noEmit"
+    "build": "npm run build:component && vite build",
+    "typecheck": "tsc --noEmit",
+    "build:component": "cd ../z-qa-component && npm install --silent && npm run build"
   },
   "dependencies": {
     "@ant-design/icons": "^6.1.0",
