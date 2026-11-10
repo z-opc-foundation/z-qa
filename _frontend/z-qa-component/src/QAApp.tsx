@@ -13,7 +13,7 @@ import E2ESessions from './pages/E2ESessions';
 import ComponentDoc from './pages/ComponentDoc';
 import {dashboardApi} from './services/api';
 import QaNotImplemented from './QaNotImplemented';
-import {qaBase} from './qaBase';
+import {qaBase, QaBaseProvider} from './qaBase';
 
 /**
  * z-qa 测试平台路由 (FEATURE052 §7).
@@ -61,45 +61,56 @@ const QAApp: React.FC<{ mountPath?: string }> = ({mountPath}) => {
         };
     }, [isDocs]);
 
+    let content: React.ReactNode;
     if (isDocs) {
-        return <ComponentDoc/>;
-    }
+        content = <ComponentDoc/>;
+    } else if (backend === 'checking') {
+        // 探测在飞时不渲染内容：否则子页会先发一轮注定 404 的请求。
+        content = null;
+    } else if (backend === 'missing') {
+        content = <QaNotImplemented/>;
+    } else {
+        // 子路径解析：真实路径以挂载前缀开头时按真实路径切；合成挂载（真实路径
+        // 不含前缀）时视作落在默认页 —— 页内跳转走 `${base}/xxx` 真实导航，
+        // 自然过渡到 /test/qa/* 形态，由宿主真实路由接管。
+        const rel = (base && pathname.startsWith(base)
+            ? pathname.slice(base.length)
+            : '/dashboard'
+        ).replace(/^\/+|\/+$/g, '');
+        const [head, param, tail] = rel.split('/');
 
-    // 探测在飞时不渲染内容：否则子页会先发一轮注定 404 的请求。
-    if (backend !== 'ok') {
-        return backend === 'missing' ? <QaNotImplemented/> : null;
+        switch (head) {
+            case '':
+            case 'dashboard':
+                content = <Dashboard/>;
+                break;
+            case 'suites':
+                content = param && tail === 'steps' ? <SuiteSteps id={param}/> : <SuiteList/>;
+                break;
+            case 'plans':
+                content = <PlanList/>;
+                break;
+            case 'runs':
+                content = param ? <RunDetail id={param}/> : <RunList/>;
+                break;
+            case 'envs':
+                content = <EnvList/>;
+                break;
+            case 'cases':
+                content = <CaseList/>;
+                break;
+            case 'schedules':
+                content = <ScheduleList/>;
+                break;
+            case 'e2e':
+                content = <E2ESessions/>;
+                break;
+            default:
+                content = <Navigate to={`${base}/dashboard`} replace/>;
+        }
     }
-
-    // 子路径解析：真实路径以挂载前缀开头时按真实路径切；合成挂载（真实路径
-    // 不含前缀）时视作落在默认页 —— 页内跳转走 `${base}/xxx` 真实导航，
-    // 自然过渡到 /test/qa/* 形态，由宿主真实路由接管。
-    const rel = (base && pathname.startsWith(base)
-        ? pathname.slice(base.length)
-        : '/dashboard'
-    ).replace(/^\/+|\/+$/g, '');
-    const [head, param, tail] = rel.split('/');
-
-    switch (head) {
-        case '':
-        case 'dashboard':
-            return <Dashboard/>;
-        case 'suites':
-            return param && tail === 'steps' ? <SuiteSteps id={param}/> : <SuiteList/>;
-        case 'plans':
-            return <PlanList/>;
-        case 'runs':
-            return param ? <RunDetail id={param}/> : <RunList/>;
-        case 'envs':
-            return <EnvList/>;
-        case 'cases':
-            return <CaseList/>;
-        case 'schedules':
-            return <ScheduleList/>;
-        case 'e2e':
-            return <E2ESessions/>;
-        default:
-            return <Navigate to={`${base}/dashboard`} replace/>;
-    }
+    // 页内导航（useQaBase）在合成挂载下拿不到 qa 段，统一吃这里声明的 base。
+    return <QaBaseProvider base={base}>{content}</QaBaseProvider>;
 };
 
 export default QAApp;
