@@ -32,10 +32,15 @@ import {qaBase} from './qaBase';
  * {@code /test/qa/cases} 都匹配不到，只会在 * 兜底里反复重定向。
  * 按挂载前缀切出相对段自己做分发，两种宿主形态表现一致。
  */
-const QAApp: React.FC = () => {
+const QAApp: React.FC<{ mountPath?: string }> = ({mountPath}) => {
     const [backend, setBackend] = useState<'checking' | 'ok' | 'missing'>('checking');
     const {pathname} = useLocation();
-    const base = qaBase(pathname);
+    // 挂载前缀：宿主显式声明优先；否则按「路径里找 /qa 或 /z-qa 段」推断。
+    // 推断不到（宿主在无 qa 段的路径上合成挂载，如 SystemShell ?mode=test 把
+    // effectivePath 定成 /test/qa/dashboard 但真实 pathname 仍是 /workspace）时，
+    // mountPath 是唯一可靠来源 —— 没有它 base 为空，default 分支会把用户
+    // <Navigate> 到无主的 /dashboard（2026-11-11 实测横跳/404 根因）。
+    const base = mountPath ?? qaBase(pathname);
     // 文档页只读编译期嵌入的 DOC.md，不打任何后端接口；探不通时也必须可达。
     const isDocs = /\/docs\/?$/.test(pathname);
 
@@ -65,7 +70,13 @@ const QAApp: React.FC = () => {
         return backend === 'missing' ? <QaNotImplemented/> : null;
     }
 
-    const rel = pathname.slice(base.length).replace(/^\/+|\/+$/g, '');
+    // 子路径解析：真实路径以挂载前缀开头时按真实路径切；合成挂载（真实路径
+    // 不含前缀）时视作落在默认页 —— 页内跳转走 `${base}/xxx` 真实导航，
+    // 自然过渡到 /test/qa/* 形态，由宿主真实路由接管。
+    const rel = (base && pathname.startsWith(base)
+        ? pathname.slice(base.length)
+        : '/dashboard'
+    ).replace(/^\/+|\/+$/g, '');
     const [head, param, tail] = rel.split('/');
 
     switch (head) {
