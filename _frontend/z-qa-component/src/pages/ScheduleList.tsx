@@ -1,7 +1,7 @@
 import React, {useMemo, useState} from 'react';
 import {Button, Card, Form, Input, message, Modal, Popconfirm, Select, Space, Switch, Table, Tag} from 'antd';
 import {EmptyState} from '@yuku123/z-frontend-common/ui';
-import {DeleteOutlined, PlusOutlined, ReloadOutlined} from '@ant-design/icons';
+import {PlusOutlined, ReloadOutlined} from '@ant-design/icons';
 import {scheduleApi} from '../services/api';
 
 /**
@@ -131,7 +131,7 @@ const ScheduleList: React.FC = () => {
                                 cancelText="取消"
                                 onConfirm={() => handleDelete(r.id)}
                             >
-                                <Button type="link" size="small" danger icon={<DeleteOutlined/>}>删除</Button>
+                                <Button type="link" size="small" danger>删除</Button>
                             </Popconfirm>
                         )
                     },

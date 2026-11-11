@@ -1,7 +1,7 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import {Button, Card, Form, Input, message, Modal, Popconfirm, Select, Space, Table, Tag} from 'antd';
 import {EmptyState} from '@yuku123/z-frontend-common/ui';
-import {DeleteOutlined, EditOutlined, PlayCircleOutlined, PlusOutlined, ReloadOutlined, ScheduleOutlined} from '@ant-design/icons';
+import {PlusOutlined, ReloadOutlined, ScheduleOutlined} from '@ant-design/icons';
 import {planApi, suiteApi} from '../services/api';
 import {useNavigate} from 'react-router-dom';
 import {useQaBase} from '../qaBase';
@@ -177,9 +177,9 @@ const PlanList: React.FC = () => {
                             title: '操作', width: 220,
                             render: (_, p) => (
                                 <Space>
-                                    <Button type="link" size="small" icon={<PlayCircleOutlined/>}
+                                    <Button type="link" size="small"
                                             onClick={() => handleRun(p)}>运行</Button>
-                                    <Button type="link" size="small" icon={<EditOutlined/>}
+                                    <Button type="link" size="small"
                                             onClick={() => handleEdit(p)}>编辑</Button>
                                     <Popconfirm
                                         title="确认删除该计划？"
@@ -189,7 +189,7 @@ const PlanList: React.FC = () => {
                                         cancelText="取消"
                                         onConfirm={() => handleDelete(p.id)}
                                     >
-                                        <Button type="link" size="small" danger icon={<DeleteOutlined/>}>删除</Button>
+                                        <Button type="link" size="small" danger>删除</Button>
                                     </Popconfirm>
                                 </Space>
                             )

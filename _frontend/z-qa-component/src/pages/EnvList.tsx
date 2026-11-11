@@ -1,7 +1,7 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import {Button, Card, Form, Input, InputNumber, message, Modal, Popconfirm, Space, Table, Tag} from 'antd';
 import {EmptyState} from '@yuku123/z-frontend-common/ui';
-import {DeleteOutlined, EditOutlined, GlobalOutlined, PlusOutlined, ReloadOutlined} from '@ant-design/icons';
+import {GlobalOutlined, PlusOutlined, ReloadOutlined} from '@ant-design/icons';
 import {envApi} from '../services/api';
 
 /**
@@ -128,7 +128,7 @@ const EnvList: React.FC = () => {
                             title: '操作', width: 160,
                             render: (_, e) => (
                                 <Space>
-                                    <Button type="link" size="small" icon={<EditOutlined/>}
+                                    <Button type="link" size="small"
                                             onClick={() => handleEdit(e)}>编辑</Button>
                                     <Popconfirm
                                         title="确认删除该环境？"
@@ -138,7 +138,7 @@ const EnvList: React.FC = () => {
                                         cancelText="取消"
                                         onConfirm={() => handleDelete(e.id)}
                                     >
-                                        <Button type="link" size="small" danger icon={<DeleteOutlined/>}>删除</Button>
+                                        <Button type="link" size="small" danger>删除</Button>
                                     </Popconfirm>
                                 </Space>
                             )

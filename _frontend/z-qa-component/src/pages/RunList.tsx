@@ -1,7 +1,7 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import {Button, Card, Input, Progress, Select, Space, Table, Tag, Tooltip} from 'antd';
 import {EmptyState} from '@yuku123/z-frontend-common/ui';
-import {EyeOutlined, FileSearchOutlined, ReloadOutlined} from '@ant-design/icons';
+import {FileSearchOutlined, ReloadOutlined} from '@ant-design/icons';
 import {runApi} from '../services/api';
 import {useNavigate} from 'react-router-dom';
 import {useQaBase} from '../qaBase';
@@ -134,7 +134,7 @@ const RunList: React.FC = () => {
                         {
                             title: '操作', width: 100, fixed: 'right',
                             render: (_, r) => (
-                                <Button type="link" size="small" icon={<EyeOutlined/>}
+                                <Button type="link" size="small"
                                         onClick={() => navigate(`${qaRoot}/runs/${r.id}`)}>详情</Button>
                             )
                         },

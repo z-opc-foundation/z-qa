@@ -2,13 +2,9 @@ import React, {useEffect, useMemo, useState} from 'react';
 import {Button, Card, Form, Input, message, Modal, Popconfirm, Select, Space, Switch, Table, Tag, Tooltip} from 'antd';
 import {EmptyState} from '@yuku123/z-frontend-common/ui';
 import {
-    DeleteOutlined,
-    EditOutlined,
-    EyeOutlined,
     FileTextOutlined,
-    PlayCircleOutlined,
     PlusOutlined,
-    ReloadOutlined
+    ReloadOutlined,
 } from '@ant-design/icons';
 import {runApi, suiteApi} from '../services/api';
 import {useNavigate} from 'react-router-dom';
@@ -189,12 +185,12 @@ const SuiteList: React.FC = () => {
                             render: (_, s) => (
                                 <Space>
                                     <Tooltip title="查看步骤">
-                                        <Button type="link" size="small" icon={<EyeOutlined/>}
+                                        <Button type="link" size="small"
                                                 onClick={() => handleViewSteps(s)}>步骤</Button>
                                     </Tooltip>
-                                    <Button type="link" size="small" icon={<PlayCircleOutlined/>}
+                                    <Button type="link" size="small"
                                             onClick={() => handleRun(s)}>运行</Button>
-                                    <Button type="link" size="small" icon={<EditOutlined/>}
+                                    <Button type="link" size="small"
                                             onClick={() => handleEdit(s)}>编辑</Button>
                                     <Popconfirm
                                         title="确认删除该套件？"
@@ -204,7 +200,7 @@ const SuiteList: React.FC = () => {
                                         cancelText="取消"
                                         onConfirm={() => handleDelete(s.id)}
                                     >
-                                        <Button type="link" size="small" danger icon={<DeleteOutlined/>}>删除</Button>
+                                        <Button type="link" size="small" danger>删除</Button>
                                     </Popconfirm>
                                 </Space>
                             )

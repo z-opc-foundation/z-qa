@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {Alert, Button, Card, Form, Input, InputNumber, message, Modal, Select, Space, Table, Tag, Tooltip} from 'antd';
-import {ArrowDownOutlined, ArrowUpOutlined, DeleteOutlined, PlusOutlined, SaveOutlined} from '@ant-design/icons';
+import {PlusOutlined, SaveOutlined} from '@ant-design/icons';
 import {suiteApi} from '../services/api';
 import {useLocation, useNavigate, useParams} from 'react-router-dom';
 import {useQaBase} from '../qaBase';
@@ -149,13 +149,13 @@ const SuiteSteps: React.FC<{ id?: string }> = ({id: idProp}) => {
                             title: '操作', width: 200,
                             render: (_, s, idx) => (
                                 <Space>
-                                    <Tooltip title="上移"><Button size="small" icon={<ArrowUpOutlined/>}
-                                                                  onClick={() => handleMove(idx as number, -1)}/></Tooltip>
-                                    <Tooltip title="下移"><Button size="small" icon={<ArrowDownOutlined/>}
-                                                                  onClick={() => handleMove(idx as number, 1)}/></Tooltip>
-                                    <Button size="small" onClick={() => handleEdit(s)}>编辑</Button>
-                                    <Button size="small" danger icon={<DeleteOutlined/>}
-                                            onClick={() => handleDelete(s.step_no)}/>
+                                    <Tooltip title="上移"><Button type="link" size="small"
+                                                                  onClick={() => handleMove(idx as number, -1)}>上移</Button></Tooltip>
+                                    <Tooltip title="下移"><Button type="link" size="small"
+                                                                  onClick={() => handleMove(idx as number, 1)}>下移</Button></Tooltip>
+                                    <Button type="link" size="small" onClick={() => handleEdit(s)}>编辑</Button>
+                                    <Button type="link" size="small" danger
+                                            onClick={() => handleDelete(s.step_no)}>删除</Button>
                                 </Space>
                             )
                         },
