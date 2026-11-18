@@ -9,7 +9,7 @@
         版本根用 ${revision} (CI-friendly) + 常开 flatten(oss) ⇒ 入库/发布件落成字面量、
         <parent> 被剥掉（现读 repo1 的 1.0.0：z-qa / z-qa-core / z-qa-web 三份 pom 的 <parent> 计数全为 0）。
 
-        2026-09-29 起消费入口走 io.github.yuku123:z-boot-parent:1.0.19（全组织口径）：
+        2026-09-29 起消费入口走 io.github.yuku123:z-boot-parent:1.2.4（全组织口径）：
         第三方地板 z-boot-dependencies + 兄弟仓权威 z-boot-fleet + Java 8 的 pluginManagement。
         relativePath 必须留空：parent 不在磁盘上，在 repo1。
 
@@ -23,7 +23,7 @@
     <parent>
         <groupId>io.github.yuku123</groupId>
         <artifactId>z-boot-parent</artifactId>
-        <version>1.2.3</version>
+        <version>1.2.4</version>
         <relativePath/>
     </parent>
 

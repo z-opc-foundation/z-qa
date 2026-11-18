@@ -65,7 +65,10 @@
                         <id>npm-install</id>
                         <goals><goal>npm</goal></goals>
                         <configuration>
-                            <arguments>install --registry=https://registry.npmmirror.com</arguments>
+                            <!-- 2026-11-18：显式钉官方 registry。
+                                 npmmirror 对本组织的 NPM_TOKEN 返回 401/E401（发布链路已验证），
+                                 且 npm install 走镜像时偶发 exit 1 ⇒ 统一回官方源。 -->
+                            <arguments>install --registry=https://registry.npmjs.org</arguments>
                         </configuration>
                     </execution>
                     <execution>
