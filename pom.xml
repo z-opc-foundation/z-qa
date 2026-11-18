@@ -23,7 +23,7 @@
     <parent>
         <groupId>io.github.yuku123</groupId>
         <artifactId>z-boot-parent</artifactId>
-        <version>1.2.4</version>
+        <version>1.2.6</version>
         <relativePath/>
     </parent>
 
@@ -139,8 +139,8 @@
 
             <!-- 父链会把这两格**往回**压，按坐标写直接条目压住（口径同 z-kb、z-schedule）：
                  mybatis-spring 本仓基线 2.1.2（mybatis-plus-boot-starter 3.5.7 自带）vs 地板 2.0.6；
-                 mysql-connector-j 本仓基线 8.0.33 vs 地板 8.4.0（8.4 换 driver 行为，且带进
-                 com.google.protobuf:protobuf-java 一整件新传递依赖）。 -->
+                 mysql-connector-j 2026-11-18 第二轮起与地板**同值**（8.4.0）——
+                 原先本仓基线是 8.0.33（漏洞版末位），按漏洞治理口径已改为跟随 parent。 -->
             <dependency>
                 <groupId>org.mybatis</groupId>
                 <artifactId>mybatis-spring</artifactId>
@@ -149,11 +149,16 @@
             <dependency>
                 <groupId>com.mysql</groupId>
                 <artifactId>mysql-connector-j</artifactId>
-                <version>8.0.33</version>
-                <!-- 删掉 spring-boot-dependencies 的 BOM import 会连带删掉**它那条受管项自带的
-                     exclusion**（Boot 对 mysql-connector-j 排掉 protobuf-java）：只写版本的直接条目
-                     是整条替换，实测 protobuf-java:3.25.5 从 mysql 底下冒进 core/web 两棵树
-                     （基线里它不在）。照抄 Boot 的 exclusion 保持零漂移，同 z-mist 的写法。 -->
+                <!-- 2026-11-18 第二轮：8.0.33 → 8.4.0
+                     GHSA-m6vm-37g8-gqvh（C:H，MySQL Connectors 接管漏洞）区间为
+                     introduced=0 / fixed=8.2.0 与 introduced=0 / last_affected=8.0.33
+                     ⇒ 8.0.33 是**该漏洞线的末版**（再往后 8.1+ 已是新坐标 com.mysql:mysql-connector-j）。
+                     8.4.0 起干净（OSV 复核），且**正是 parent DM 给的版本**
+                     —— 本条 DM 直接条目原先把它压回 8.0.33（见上面那段注释：当时为保 driver 行为
+                     不换版本线；现在按漏洞治理口径改为跟随 parent 的 8.4.0）。
+                     protobuf exclusion 照旧保留（Boot 对该受管项自带 exclusion，
+                     删掉会让 protobuf-java 从 mysql 底下冒进 core/web 两棵树）。 -->
+                <version>8.4.0</version>
                 <exclusions>
                     <exclusion>
                         <groupId>com.google.protobuf</groupId>
