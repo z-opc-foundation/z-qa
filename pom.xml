@@ -74,6 +74,7 @@
     </modules>
 
     <properties>
+        <z-meta.version>1.0.2</z-meta.version>
         <!-- CI-friendly 版本根 (发版改这一处即可)
              ⚠ 1.0.1 已于 2026-09-29 发到 Central，那份 z-qa-web 是 Controller 还留在 core 时的字节
                （解包零 Controller）⇒ 换 1.1.0 重发，不可覆盖 1.0.1。
@@ -165,6 +166,11 @@
                         <artifactId>protobuf-java</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>io.github.yuku123</groupId>
+                <artifactId>z-meta-api</artifactId>
+                <version>${z-meta.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

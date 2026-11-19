@@ -1,6 +1,9 @@
 package com.zifang.z.qa.web.api;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.zifang.z.meta.api.annotation.BizApi;
+import com.zifang.z.meta.api.annotation.BizField;
+import com.zifang.z.meta.api.annotation.BizParam;
 import com.zifang.z.qa.admin.domain.entity.QaEnvDO;
 import com.zifang.z.qa.admin.domain.mapper.QaEnvMapper;
 import com.zifang.z.qa.web.request.QaEnvReq;
@@ -29,13 +32,15 @@ public class EnvApi {
     private QaEnvMapper envMapper;
 
     @GetMapping("/list")
+    @BizApi(summary = "list", description = "", tags = { "z-qa" })
     public QaResult<List<QaEnvResp>> list() {
         List<QaEnvDO> list = envMapper.selectList(new QueryWrapper<QaEnvDO>().orderByDesc("priority"));
         return QaResult.ok(QaConverter.toList(list, QaEnvResp.class));
     }
 
     @PostMapping("/add")
-    public QaResult<QaEnvResp> add(@RequestBody QaEnvReq req) {
+    @BizApi(summary = "add", description = "", tags = { "z-qa" })
+    public QaResult<QaEnvResp> add(@RequestBody @BizParam(name = "req", type = BizField.FieldType.STRING, description = "", position = BizParam.Position.BODY) QaEnvReq req) {
         QaEnvDO env = new QaEnvDO();
         BeanUtils.copyProperties(req, env);
         Date now = new Date();
@@ -46,7 +51,8 @@ public class EnvApi {
     }
 
     @PostMapping("/update")
-    public QaResult<Void> update(@RequestBody QaEnvReq req) {
+    @BizApi(summary = "update", description = "", tags = { "z-qa" })
+    public QaResult<Void> update(@RequestBody @BizParam(name = "req", type = BizField.FieldType.STRING, description = "", position = BizParam.Position.BODY) QaEnvReq req) {
         QaEnvDO env = new QaEnvDO();
         BeanUtils.copyProperties(req, env);
         env.setGmtModified(new Date());
@@ -55,8 +61,12 @@ public class EnvApi {
     }
 
     @PostMapping("/remove")
-    public QaResult<Void> remove(@RequestParam Long id) {
+    @BizApi(summary = "remove", description = "", tags = { "z-qa" })
+    public QaResult<Void> remove(@RequestParam @BizParam(name = "id", type = BizField.FieldType.INTEGER, description = "", position = BizParam.Position.QUERY) Long id) {
         envMapper.deleteById(id);
         return QaResult.ok();
     }
 }
+
+
+

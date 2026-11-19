@@ -1,5 +1,8 @@
 package com.zifang.z.qa.web.api;
 
+import com.zifang.z.meta.api.annotation.BizApi;
+import com.zifang.z.meta.api.annotation.BizField;
+import com.zifang.z.meta.api.annotation.BizParam;
 import com.zifang.z.qa.admin.domain.entity.QaE2eActionDO;
 import com.zifang.z.qa.admin.domain.entity.QaE2eSessionDO;
 import com.zifang.z.qa.admin.service.QaE2eService;
@@ -32,15 +35,18 @@ public class E2eApi {
     private QaE2eService e2eService;
 
     @PostMapping("/sessions/open")
-    public QaResult<Long> open(@RequestBody QaE2eSessionReq req) {
+    @BizApi(summary = "open", description = "", tags = { "z-qa" })
+    public QaResult<Long> open(@RequestBody @BizParam(name = "req", type = BizField.FieldType.STRING, description = "", position = BizParam.Position.BODY) QaE2eSessionReq req) {
         Long sessionId = e2eService.openSession(
                 req.getRunId(), req.getRunDetailId(), req.getBrowserType(), req.getTargetUrl());
         return QaResult.ok(sessionId);
     }
 
     @PostMapping("/sessions/{sessionId}/finish")
-    public QaResult<Void> finish(@PathVariable Long sessionId,
-                                 @RequestBody(required = false) QaE2eFinishReq req) {
+    @BizApi(summary = "finish", description = "", tags = { "z-qa" })
+    public QaResult<Void> finish(@PathVariable @BizParam(name = "sessionId", type = BizField.FieldType.INTEGER, description = "", position = BizParam.Position.PATH) Long sessionId,
+                                 @RequestBody(required = false)
+                                 @BizParam(name = "req", type = BizField.FieldType.STRING, description = "", position = BizParam.Position.BODY) QaE2eFinishReq req) {
         String status = req == null || req.getStatus() == null ? "done" : req.getStatus();
         e2eService.finishSession(sessionId, status,
                 req == null ? null : req.getVideoOssKey(),
@@ -50,7 +56,8 @@ public class E2eApi {
     }
 
     @GetMapping("/sessions/{sessionId}")
-    public QaResult<QaE2eSessionResp> session(@PathVariable Long sessionId) {
+    @BizApi(summary = "session", description = "", tags = { "z-qa" })
+    public QaResult<QaE2eSessionResp> session(@PathVariable @BizParam(name = "sessionId", type = BizField.FieldType.INTEGER, description = "", position = BizParam.Position.PATH) Long sessionId) {
         QaE2eSessionDO s = e2eService.getSession(sessionId);
         if (s == null) {
             return QaResult.notFound("not found");
@@ -59,13 +66,15 @@ public class E2eApi {
     }
 
     @GetMapping("/sessions/{sessionId}/actions")
-    public QaResult<List<QaE2eActionResp>> actions(@PathVariable Long sessionId) {
+    @BizApi(summary = "actions", description = "", tags = { "z-qa" })
+    public QaResult<List<QaE2eActionResp>> actions(@PathVariable @BizParam(name = "sessionId", type = BizField.FieldType.INTEGER, description = "", position = BizParam.Position.PATH) Long sessionId) {
         return QaResult.ok(QaConverter.toList(e2eService.listActions(sessionId), QaE2eActionResp.class));
     }
 
     /** 同步执行一步（前端调试用）。 */
     @PostMapping("/actions/execute")
-    public QaResult<QaE2eActionResp> execAction(@RequestBody QaE2eActionReq req) {
+    @BizApi(summary = "同步执行一步（前端调试用）", description = "同步执行一步（前端调试用）。", tags = { "z-qa" })
+    public QaResult<QaE2eActionResp> execAction(@RequestBody @BizParam(name = "req", type = BizField.FieldType.STRING, description = "", position = BizParam.Position.BODY) QaE2eActionReq req) {
         QaE2eSessionDO s = e2eService.getSession(req.getSessionId());
         if (s == null) {
             return QaResult.notFound("session not found");
@@ -83,3 +92,6 @@ public class E2eApi {
         return QaResult.ok(QaConverter.to(a, QaE2eActionResp.class));
     }
 }
+
+
+

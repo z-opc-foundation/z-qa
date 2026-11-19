@@ -1,6 +1,7 @@
 package com.zifang.z.qa.admin.service.impl;
 
 import com.zifang.util.json.JsonUtil;
+import com.zifang.z.meta.api.annotation.BizMethod;
 import com.zifang.z.oss.core.domain.entity.OssObject;
 import com.zifang.z.oss.core.domain.service.IOssObjectService;
 import com.zifang.z.qa.admin.domain.entity.QaE2eActionDO;
@@ -82,6 +83,7 @@ public class QaE2eServiceImpl implements QaE2eService {
     }
 
     @Override
+    @BizMethod(name = "openSession", module = "z-qa", description = "", operation = BizMethod.Operation.ACTION)
     public Long openSession(Long runId, Long runDetailId, String browserType, String targetUrl) {
         QaE2eSessionDO s = new QaE2eSessionDO();
         s.setRunId(runId);
@@ -98,6 +100,7 @@ public class QaE2eServiceImpl implements QaE2eService {
     }
 
     @Override
+    @BizMethod(name = "recordAction", module = "z-qa", description = "", operation = BizMethod.Operation.ACTION)
     public Long recordAction(Long sessionId, int stepNo, String actionType,
                              String selector, String value, String description) {
         QaE2eActionDO a = new QaE2eActionDO();
@@ -114,6 +117,7 @@ public class QaE2eServiceImpl implements QaE2eService {
     }
 
     @Override
+    @BizMethod(name = "finishSession", module = "z-qa", description = "", operation = BizMethod.Operation.ACTION)
     public void finishSession(Long sessionId, String status,
                               String videoOssKey, String traceOssKey, String harOssKey) {
         QaE2eSessionDO s = sessionMapper.selectById(sessionId);
@@ -127,6 +131,7 @@ public class QaE2eServiceImpl implements QaE2eService {
     }
 
     @Override
+    @BizMethod(name = "listActions", module = "z-qa", description = "", operation = BizMethod.Operation.QUERY)
     public List<QaE2eActionDO> listActions(Long sessionId) {
         return actionMapper.selectBySessionId(sessionId);
     }
@@ -134,6 +139,7 @@ public class QaE2eServiceImpl implements QaE2eService {
     // ===== OSS upload (缺陷修复) =====
 
     @Override
+    @BizMethod(name = "executeAction", module = "z-qa", description = "", operation = BizMethod.Operation.ACTION)
     public boolean executeAction(QaE2eActionDO action, QaE2eSessionDO session) {
         long start = System.currentTimeMillis();
         try {
@@ -165,6 +171,7 @@ public class QaE2eServiceImpl implements QaE2eService {
     }
 
     @Override
+    @BizMethod(name = "getSession", module = "z-qa", description = "", operation = BizMethod.Operation.QUERY)
     public QaE2eSessionDO getSession(Long sessionId) {
         return sessionMapper.selectById(sessionId);
     }
@@ -336,3 +343,6 @@ public class QaE2eServiceImpl implements QaE2eService {
         }
     }
 }
+
+
+

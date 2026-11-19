@@ -1,6 +1,7 @@
 package com.zifang.z.qa.web.api;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.zifang.z.meta.api.annotation.BizApi;
 import com.zifang.z.qa.admin.domain.entity.QaRunDO;
 import com.zifang.z.qa.admin.domain.entity.QaSuiteDO;
 import com.zifang.z.qa.admin.domain.mapper.QaEnvMapper;
@@ -46,6 +47,7 @@ public class DashboardApi {
     private QaEnvMapper envMapper;
 
     @GetMapping("/stats")
+    @BizApi(summary = "stats", description = "", tags = { "z-qa" })
     public QaResult<Map<String, Object>> stats() {
         Map<String, Object> result = new HashMap<>();
         Map<String, Long> byStatus = new HashMap<>();
@@ -64,6 +66,7 @@ public class DashboardApi {
 
     /** 总览卡片：通过率 / 总步骤数 / 套件数 / 最近 24h。 */
     @GetMapping("/summary")
+    @BizApi(summary = "总览卡片：通过率 / 总步骤数 / 套件数 / 最近 24h", description = "总览卡片：通过率 / 总步骤数 / 套件数 / 最近 24h。", tags = { "z-qa" })
     public QaResult<Map<String, Object>> summary() {
         Map<String, Object> result = new HashMap<>();
         long totalRuns = runMapper.selectCount(null);
@@ -92,6 +95,7 @@ public class DashboardApi {
 
     /** 近 14 天趋势。 */
     @GetMapping("/trend")
+    @BizApi(summary = "近 14 天趋势", description = "近 14 天趋势。", tags = { "z-qa" })
     public QaResult<List<Map<String, Object>>> trend() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Calendar c = Calendar.getInstance();
@@ -133,6 +137,7 @@ public class DashboardApi {
 
     /** 各套件健康度 — pass rate 倒序。 */
     @GetMapping("/suite-health")
+    @BizApi(summary = "各套件健康度 — pass rate 倒序", description = "各套件健康度 — pass rate 倒序。", tags = { "z-qa" })
     public QaResult<List<Map<String, Object>>> suiteHealth() {
         List<QaSuiteDO> suites = suiteMapper.selectList(null);
         List<Map<String, Object>> rows = new ArrayList<>();
@@ -156,7 +161,11 @@ public class DashboardApi {
 
     /** Top 失败步骤 — mapper 直出聚合行，键名由前端消费。 */
     @GetMapping("/top-failures")
+    @BizApi(summary = "Top 失败步骤 — mapper 直出聚合行，键名由前端消费", description = "Top 失败步骤 — mapper 直出聚合行，键名由前端消费。", tags = { "z-qa" })
     public QaResult<List<Map<String, Object>>> topFailures() {
         return QaResult.ok(runDetailMapper.topFailures(20));
     }
 }
+
+
+

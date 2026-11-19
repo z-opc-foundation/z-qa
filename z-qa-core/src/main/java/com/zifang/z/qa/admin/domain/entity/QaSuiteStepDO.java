@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.zifang.z.meta.api.annotation.BizField;
+import com.zifang.z.meta.api.annotation.BizModel;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -12,52 +14,75 @@ import java.util.Date;
  * 套件步骤.
  */
 
+@BizModel(name = "z_qa_suite_step", module = "z-qa", description = "z_qa_suite_step")
 @TableName("z_qa_suite_step")
 public class QaSuiteStepDO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @TableId(type = IdType.AUTO)
+    @BizField(name = "id", type = BizField.FieldType.INTEGER)
     private Long id;
     @TableField("suite_id")
+    @BizField(name = "所属套件 ID", type = BizField.FieldType.INTEGER)
     private Long suiteId;
     @TableField("step_no")
+    @BizField(name = "步骤序号 (从1开始)", type = BizField.FieldType.INTEGER)
     private Integer stepNo;
     @TableField("step_name")
+    @BizField(name = "步骤名称", type = BizField.FieldType.STRING)
     private String stepName;
     @TableField("execution_mode")
+    @BizField(name = "api=HTTP请求 e2e=浏览器操作", type = BizField.FieldType.STRING)
     private String executionMode;
+    @BizField(name = "HTTP method: GET/POST/PUT/DELETE", type = BizField.FieldType.STRING)
     private String method;
+    @BizField(name = "HTTP URL", type = BizField.FieldType.STRING)
     private String url;
     @TableField("headers_json")
+    @BizField(name = "请求头 JSON", type = BizField.FieldType.STRING)
     private String headersJson;
+    @BizField(name = "请求体 (可含 ${VAR} 变量)", type = BizField.FieldType.STRING)
     private String body;
     @TableField("target_mode")
+    @BizField(name = "目标: real=真实服务 mock=Mock端点", type = BizField.FieldType.STRING)
     private String targetMode;
     @TableField("mock_endpoint")
+    @BizField(name = "Mock 端点 code", type = BizField.FieldType.STRING)
     private String mockEndpoint;
     @TableField("extract_rules")
+    @BizField(name = "JSONPath 变量提取规则 JSON", type = BizField.FieldType.STRING)
     private String extractRules;
     @TableField("assert_rules")
+    @BizField(name = "断言规则 JSON (eq/gt/contains/regex)", type = BizField.FieldType.STRING)
     private String assertRules;
     @TableField("timeout_ms")
+    @BizField(name = "单步超时", type = BizField.FieldType.INTEGER)
     private Integer timeoutMs;
     @TableField("retry_count")
+    @BizField(name = "失败重试次数", type = BizField.FieldType.INTEGER)
     private Integer retryCount;
     // FEATURE052 Phase 7 E2E 字段
     @TableField("e2e_action_type")
+    @BizField(name = "e2eActionType", type = BizField.FieldType.STRING)
     private String e2eActionType;
     @TableField("e2e_selector")
+    @BizField(name = "e2eSelector", type = BizField.FieldType.STRING)
     private String e2eSelector;
     @TableField("e2e_value")
+    @BizField(name = "e2eValue", type = BizField.FieldType.STRING)
     private String e2eValue;
     @TableField("e2e_screenshot")
+    @BizField(name = "e2eScreenshot", type = BizField.FieldType.INTEGER)
     private Integer e2eScreenshot;
     @TableField("tenant_code")
+    @BizField(name = "tenantCode", type = BizField.FieldType.STRING)
     private String tenantCode;
     @TableField("gmt_create")
+    @BizField(name = "gmtCreate", type = BizField.FieldType.DATETIME)
     private Date gmtCreate;
     @TableField("gmt_modified")
+    @BizField(name = "gmtModified", type = BizField.FieldType.DATETIME)
     private Date gmtModified;
 
     public Long getId() {
@@ -236,3 +261,6 @@ public class QaSuiteStepDO implements Serializable {
         this.gmtModified = gmtModified;
     }
 }
+
+
+

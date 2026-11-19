@@ -1,6 +1,9 @@
 package com.zifang.z.qa.web.api;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.zifang.z.meta.api.annotation.BizApi;
+import com.zifang.z.meta.api.annotation.BizField;
+import com.zifang.z.meta.api.annotation.BizParam;
 import com.zifang.z.qa.admin.domain.entity.QaRunDO;
 import com.zifang.z.qa.admin.domain.mapper.QaRunDetailMapper;
 import com.zifang.z.qa.admin.domain.mapper.QaRunMapper;
@@ -46,8 +49,10 @@ public class RunApi {
     private QaExecutionDispatcher dispatcher;
 
     @GetMapping("/run/list")
-    public QaResult<List<QaRunResp>> list(@RequestParam(required = false) String status,
-                                           @RequestParam(defaultValue = "50") Integer limit) {
+    @BizApi(summary = "list", description = "", tags = { "z-qa" })
+    public QaResult<List<QaRunResp>> list(@RequestParam(required = false) @BizParam(name = "status", type = BizField.FieldType.STRING, description = "", position = BizParam.Position.QUERY) String status,
+                                           @RequestParam(defaultValue = "50")
+                                           @BizParam(name = "limit", type = BizField.FieldType.INTEGER, description = "", position = BizParam.Position.QUERY) Integer limit) {
         QueryWrapper<QaRunDO> qw = new QueryWrapper<>();
         if (status != null && !status.isEmpty()) {
             qw.eq("status", status);
@@ -57,10 +62,14 @@ public class RunApi {
     }
 
     @PostMapping("/run/trigger")
-    public QaResult<QaRunResp> trigger(@RequestParam Long suiteId,
-                                       @RequestParam(required = false) String envCode,
-                                       @RequestParam(required = false) String triggerUser,
-                                       @RequestParam(required = false) String triggerType) {
+    @BizApi(summary = "trigger", description = "", tags = { "z-qa" })
+    public QaResult<QaRunResp> trigger(@RequestParam @BizParam(name = "suiteId", type = BizField.FieldType.INTEGER, description = "", position = BizParam.Position.QUERY) Long suiteId,
+                                       @RequestParam(required = false)
+                                       @BizParam(name = "envCode", type = BizField.FieldType.STRING, description = "", position = BizParam.Position.QUERY) String envCode,
+                                       @RequestParam(required = false)
+                                       @BizParam(name = "triggerUser", type = BizField.FieldType.STRING, description = "", position = BizParam.Position.QUERY) String triggerUser,
+                                       @RequestParam(required = false)
+                                       @BizParam(name = "triggerType", type = BizField.FieldType.STRING, description = "", position = BizParam.Position.QUERY) String triggerType) {
         try {
             QaRunDO run = dispatcher.triggerSuite(suiteId, envCode, triggerUser, triggerType);
             return QaResult.ok("已触发", QaConverter.to(run, QaRunResp.class));
@@ -73,10 +82,14 @@ public class RunApi {
      * 触发计划执行 —— 一个 run 串起计划下的所有套件。
      */
     @PostMapping("/run/runPlan")
-    public QaResult<QaRunResp> runPlan(@RequestParam Long planId,
-                                       @RequestParam(required = false) String envCode,
-                                       @RequestParam(required = false) String triggerUser,
-                                       @RequestParam(required = false) String triggerType) {
+    @BizApi(summary = "触发计划执行 —— 一个 run 串起计划下的所有套件", description = "触发计划执行 —— 一个 run 串起计划下的所有套件。", tags = { "z-qa" })
+    public QaResult<QaRunResp> runPlan(@RequestParam @BizParam(name = "planId", type = BizField.FieldType.INTEGER, description = "", position = BizParam.Position.QUERY) Long planId,
+                                       @RequestParam(required = false)
+                                       @BizParam(name = "envCode", type = BizField.FieldType.STRING, description = "", position = BizParam.Position.QUERY) String envCode,
+                                       @RequestParam(required = false)
+                                       @BizParam(name = "triggerUser", type = BizField.FieldType.STRING, description = "", position = BizParam.Position.QUERY) String triggerUser,
+                                       @RequestParam(required = false)
+                                       @BizParam(name = "triggerType", type = BizField.FieldType.STRING, description = "", position = BizParam.Position.QUERY) String triggerType) {
         try {
             QaRunDO run = dispatcher.triggerPlan(planId, envCode, triggerUser, triggerType);
             return QaResult.ok("已触发", QaConverter.to(run, QaRunResp.class));
@@ -86,7 +99,8 @@ public class RunApi {
     }
 
     @GetMapping("/run/status")
-    public QaResult<Map<String, Object>> status(@RequestParam Long runId) {
+    @BizApi(summary = "status", description = "", tags = { "z-qa" })
+    public QaResult<Map<String, Object>> status(@RequestParam @BizParam(name = "runId", type = BizField.FieldType.INTEGER, description = "", position = BizParam.Position.QUERY) Long runId) {
         String status = dispatcher.getRunStatus(runId);
         Integer progress = dispatcher.getRunProgress(runId);
         QaRunDO run = runMapper.selectById(runId);
@@ -102,12 +116,14 @@ public class RunApi {
     }
 
     @GetMapping("/run/details")
-    public QaResult<List<QaRunDetailResp>> details(@RequestParam Long runId) {
+    @BizApi(summary = "details", description = "", tags = { "z-qa" })
+    public QaResult<List<QaRunDetailResp>> details(@RequestParam @BizParam(name = "runId", type = BizField.FieldType.INTEGER, description = "", position = BizParam.Position.QUERY) Long runId) {
         return QaResult.ok(QaConverter.toList(runDetailMapper.selectByRunId(runId), QaRunDetailResp.class));
     }
 
     @GetMapping("/run/get")
-    public QaResult<QaRunResp> get(@RequestParam Long id) {
+    @BizApi(summary = "get", description = "", tags = { "z-qa" })
+    public QaResult<QaRunResp> get(@RequestParam @BizParam(name = "id", type = BizField.FieldType.INTEGER, description = "", position = BizParam.Position.QUERY) Long id) {
         QaRunDO run = runMapper.selectById(id);
         if (run == null) {
             return QaResult.notFound("not found");
@@ -116,7 +132,8 @@ public class RunApi {
     }
 
     @PostMapping("/runs/{runCode}/abort")
-    public QaResult<QaRunResp> abortByRunCode(@PathVariable String runCode) {
+    @BizApi(summary = "abortByRunCode", description = "", tags = { "z-qa" })
+    public QaResult<QaRunResp> abortByRunCode(@PathVariable @BizParam(name = "runCode", type = BizField.FieldType.STRING, description = "", position = BizParam.Position.PATH) String runCode) {
         QaRunDO run = runMapper.selectOne(new QueryWrapper<QaRunDO>().eq("run_code", runCode));
         if (run == null) {
             return QaResult.notFound("run not found");
@@ -125,7 +142,8 @@ public class RunApi {
     }
 
     @PostMapping("/run/abort")
-    public QaResult<QaRunResp> abort(@RequestParam Long runId) {
+    @BizApi(summary = "abort", description = "", tags = { "z-qa" })
+    public QaResult<QaRunResp> abort(@RequestParam @BizParam(name = "runId", type = BizField.FieldType.INTEGER, description = "", position = BizParam.Position.QUERY) Long runId) {
         return doAbort(runId);
     }
 
@@ -146,3 +164,6 @@ public class RunApi {
         return QaResult.ok("abort requested; status will flip to cancelled", QaConverter.to(run, QaRunResp.class));
     }
 }
+
+
+

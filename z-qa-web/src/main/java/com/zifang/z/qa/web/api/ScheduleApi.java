@@ -1,5 +1,8 @@
 package com.zifang.z.qa.web.api;
 
+import com.zifang.z.meta.api.annotation.BizApi;
+import com.zifang.z.meta.api.annotation.BizField;
+import com.zifang.z.meta.api.annotation.BizParam;
 import com.zifang.z.qa.admin.domain.entity.QaScheduleDO;
 import com.zifang.z.qa.admin.service.QaScheduleService;
 import com.zifang.z.qa.web.request.QaScheduleReq;
@@ -27,12 +30,14 @@ public class ScheduleApi {
     private QaScheduleService scheduleService;
 
     @GetMapping("/list")
+    @BizApi(summary = "list", description = "", tags = { "z-qa" })
     public QaResult<List<QaScheduleResp>> list() {
         return QaResult.ok(QaConverter.toList(scheduleService.list(), QaScheduleResp.class));
     }
 
     @GetMapping("/get")
-    public QaResult<QaScheduleResp> get(@RequestParam Long id) {
+    @BizApi(summary = "get", description = "", tags = { "z-qa" })
+    public QaResult<QaScheduleResp> get(@RequestParam @BizParam(name = "id", type = BizField.FieldType.INTEGER, description = "", position = BizParam.Position.QUERY) Long id) {
         QaScheduleDO s = scheduleService.get(id);
         if (s == null) {
             return QaResult.notFound("not found");
@@ -41,14 +46,16 @@ public class ScheduleApi {
     }
 
     @PostMapping("/add")
-    public QaResult<Long> add(@RequestBody QaScheduleReq req) {
+    @BizApi(summary = "add", description = "", tags = { "z-qa" })
+    public QaResult<Long> add(@RequestBody @BizParam(name = "req", type = BizField.FieldType.STRING, description = "", position = BizParam.Position.BODY) QaScheduleReq req) {
         QaScheduleDO schedule = new QaScheduleDO();
         BeanUtils.copyProperties(req, schedule);
         return QaResult.ok(scheduleService.create(schedule));
     }
 
     @PostMapping("/update")
-    public QaResult<Void> update(@RequestBody QaScheduleReq req) {
+    @BizApi(summary = "update", description = "", tags = { "z-qa" })
+    public QaResult<Void> update(@RequestBody @BizParam(name = "req", type = BizField.FieldType.STRING, description = "", position = BizParam.Position.BODY) QaScheduleReq req) {
         QaScheduleDO schedule = new QaScheduleDO();
         BeanUtils.copyProperties(req, schedule);
         scheduleService.update(schedule);
@@ -56,19 +63,25 @@ public class ScheduleApi {
     }
 
     @PostMapping("/remove")
-    public QaResult<Void> remove(@RequestParam Long id) {
+    @BizApi(summary = "remove", description = "", tags = { "z-qa" })
+    public QaResult<Void> remove(@RequestParam @BizParam(name = "id", type = BizField.FieldType.INTEGER, description = "", position = BizParam.Position.QUERY) Long id) {
         scheduleService.delete(id);
         return QaResult.ok();
     }
 
     @PostMapping("/toggle")
-    public QaResult<Void> toggle(@RequestParam Long id, @RequestParam Boolean enabled) {
+    @BizApi(summary = "toggle", description = "", tags = { "z-qa" })
+    public QaResult<Void> toggle(@RequestParam @BizParam(name = "id", type = BizField.FieldType.INTEGER, description = "", position = BizParam.Position.QUERY) Long id, @RequestParam @BizParam(name = "enabled", type = BizField.FieldType.BOOLEAN, description = "", position = BizParam.Position.QUERY) Boolean enabled) {
         scheduleService.toggle(id, enabled);
         return QaResult.ok();
     }
 
     @PostMapping("/scan")
+    @BizApi(summary = "scan", description = "", tags = { "z-qa" })
     public QaResult<Integer> scan() {
         return QaResult.ok("scanned", scheduleService.scanAndTrigger());
     }
 }
+
+
+

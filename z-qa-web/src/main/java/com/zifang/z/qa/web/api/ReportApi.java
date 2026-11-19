@@ -1,5 +1,8 @@
 package com.zifang.z.qa.web.api;
 
+import com.zifang.z.meta.api.annotation.BizApi;
+import com.zifang.z.meta.api.annotation.BizField;
+import com.zifang.z.meta.api.annotation.BizParam;
 import com.zifang.z.qa.admin.service.QaReportService;
 import com.zifang.z.qa.web.response.QaResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +23,14 @@ public class ReportApi {
     private QaReportService reportService;
 
     @GetMapping(value = "/html/{runCode}", produces = MediaType.TEXT_HTML_VALUE)
-    public String html(@PathVariable String runCode) {
+    @BizApi(summary = "html", description = "", tags = { "z-qa" })
+    public String html(@PathVariable @BizParam(name = "runCode", type = BizField.FieldType.STRING, description = "", position = BizParam.Position.PATH) String runCode) {
         return reportService.renderHtml(runCode);
     }
 
     @GetMapping("/chain/{runCode}")
-    public QaResult<Object> chain(@PathVariable String runCode) {
+    @BizApi(summary = "chain", description = "", tags = { "z-qa" })
+    public QaResult<Object> chain(@PathVariable @BizParam(name = "runCode", type = BizField.FieldType.STRING, description = "", position = BizParam.Position.PATH) String runCode) {
         Object chain = reportService.renderChain(runCode);
         if (chain == null) {
             return QaResult.notFound("not found");
@@ -33,3 +38,6 @@ public class ReportApi {
         return QaResult.ok(chain);
     }
 }
+
+
+

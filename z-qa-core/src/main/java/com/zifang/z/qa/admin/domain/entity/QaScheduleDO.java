@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.zifang.z.meta.api.annotation.BizField;
+import com.zifang.z.meta.api.annotation.BizModel;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -12,67 +14,86 @@ import java.util.Date;
  * 定时执行 (对应 z_qa_schedule).
  * FEATURE052 §4.5 + §9.5
  */
+@BizModel(name = "定时执行 (对应 z_qa_schedule)", module = "z-qa", description = "定时执行 (对应 z_qa_schedule). FEATURE052 §4.5 + §9.5")
 @TableName("z_qa_schedule")
 public class QaScheduleDO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @TableId(type = IdType.AUTO)
+    @BizField(name = "id", type = BizField.FieldType.INTEGER)
     private Long id;
 
+    @BizField(name = "定时任务名称", type = BizField.FieldType.STRING)
     private String name;
 
     /**
      * suite=单套件 / plan=批量计划
      */
     @TableField("target_type")
+    @BizField(name = "suite=单套件 plan=批量计划", type = BizField.FieldType.STRING)
     private String targetType;
 
     @TableField("suite_id")
+    @BizField(name = "target_type=suite 时必填", type = BizField.FieldType.INTEGER)
     private Long suiteId;
 
     @TableField("plan_id")
+    @BizField(name = "target_type=plan 时必填 (关联 z_qa_plan.id)", type = BizField.FieldType.INTEGER)
     private Long planId;
 
     @TableField("cron_expr")
+    @BizField(name = "Cron 表达式 (例如 0 0 23 * * ?)", type = BizField.FieldType.STRING)
     private String cronExpr;
 
     @TableField("env_code")
+    @BizField(name = "执行环境 (env.baseUrl)", type = BizField.FieldType.STRING)
     private String envCode;
 
     /**
      * 0=禁用 1=启用
      */
+    @BizField(name = "是否启用", type = BizField.FieldType.INTEGER)
     private Integer enabled;
 
     @TableField("notify_channels")
+    @BizField(name = "通知渠道 (逗号分隔: in_app,email)", type = BizField.FieldType.STRING)
     private String notifyChannels;
 
     @TableField("notify_on_pass")
+    @BizField(name = "通过也通知", type = BizField.FieldType.INTEGER)
     private Integer notifyOnPass;
 
     @TableField("notify_on_fail")
+    @BizField(name = "失败才通知", type = BizField.FieldType.INTEGER)
     private Integer notifyOnFail;
 
     @TableField("last_run_id")
+    @BizField(name = "上次执行 ID", type = BizField.FieldType.INTEGER)
     private Long lastRunId;
 
     @TableField("last_run_time")
+    @BizField(name = "上次执行时间", type = BizField.FieldType.DATETIME)
     private Date lastRunTime;
 
     @TableField("last_run_result")
+    @BizField(name = "上次执行结果", type = BizField.FieldType.STRING)
     private String lastRunResult;
 
     @TableField("next_run_time")
+    @BizField(name = "下次执行时间", type = BizField.FieldType.DATETIME)
     private Date nextRunTime;
 
     @TableField("tenant_code")
+    @BizField(name = "tenantCode", type = BizField.FieldType.STRING)
     private String tenantCode;
 
     @TableField("gmt_create")
+    @BizField(name = "gmtCreate", type = BizField.FieldType.DATETIME)
     private Date gmtCreate;
 
     @TableField("gmt_modified")
+    @BizField(name = "gmtModified", type = BizField.FieldType.DATETIME)
     private Date gmtModified;
 
     public Long getId() {
@@ -219,3 +240,6 @@ public class QaScheduleDO implements Serializable {
         this.gmtModified = gmtModified;
     }
 }
+
+
+

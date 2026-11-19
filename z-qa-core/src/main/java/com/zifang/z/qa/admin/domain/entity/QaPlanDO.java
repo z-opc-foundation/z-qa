@@ -4,45 +4,63 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.zifang.z.meta.api.annotation.BizField;
+import com.zifang.z.meta.api.annotation.BizModel;
 
 import java.io.Serializable;
 import java.util.Date;
 
-
+@BizModel(name = "z_qa_plan", module = "z-qa", description = "z_qa_plan")
 @TableName("z_qa_plan")
 public class QaPlanDO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @TableId(type = IdType.AUTO)
+    @BizField(name = "id", type = BizField.FieldType.INTEGER)
     private Long id;
+    @BizField(name = "计划编码 (唯一)", type = BizField.FieldType.STRING)
     private String code;
+    @BizField(name = "name", type = BizField.FieldType.STRING)
     private String name;
+    @BizField(name = "description", type = BizField.FieldType.STRING)
     private String description;
     @TableField("suite_ids")
+    @BizField(name = "JSON 数组: 关联套件 ID 列表", type = BizField.FieldType.STRING)
     private String suiteIds;
     @TableField("case_ids")
+    @BizField(name = "JSON 数组: 关联用例 ID 列表", type = BizField.FieldType.STRING)
     private String caseIds;
     @TableField("cron_expr")
+    @BizField(name = "cron 表达式 (空=手动)", type = BizField.FieldType.STRING)
     private String cronExpr;
     @TableField("notify_type")
+    @BizField(name = "none/inapp/email/all", type = BizField.FieldType.STRING)
     private String notifyType;
     /**
      * FEATURE052 §9.5 — 通知渠道 (in_app,email)
      */
     @TableField("notify_channels")
+    @BizField(name = "FEATURE052 §9.5 — 通知渠道 (in_app,email)", type = BizField.FieldType.STRING)
     private String notifyChannels;
     @TableField("notify_on_pass")
+    @BizField(name = "notifyOnPass", type = BizField.FieldType.INTEGER)
     private Integer notifyOnPass;
     @TableField("notify_on_fail")
+    @BizField(name = "notifyOnFail", type = BizField.FieldType.INTEGER)
     private Integer notifyOnFail;
+    @BizField(name = "status", type = BizField.FieldType.INTEGER)
     private Integer status;
+    @BizField(name = "owner", type = BizField.FieldType.STRING)
     private String owner;
     @TableField("tenant_code")
+    @BizField(name = "tenantCode", type = BizField.FieldType.STRING)
     private String tenantCode;
     @TableField("gmt_create")
+    @BizField(name = "gmtCreate", type = BizField.FieldType.DATETIME)
     private Date gmtCreate;
     @TableField("gmt_modified")
+    @BizField(name = "gmtModified", type = BizField.FieldType.DATETIME)
     private Date gmtModified;
 
     public Long getId() {
@@ -173,3 +191,6 @@ public class QaPlanDO implements Serializable {
         this.gmtModified = gmtModified;
     }
 }
+
+
+

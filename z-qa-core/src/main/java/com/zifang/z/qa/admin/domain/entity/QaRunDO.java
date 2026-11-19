@@ -4,68 +4,91 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.zifang.z.meta.api.annotation.BizField;
+import com.zifang.z.meta.api.annotation.BizModel;
 
 import java.io.Serializable;
 import java.util.Date;
 
-
+@BizModel(name = "z_qa_run", module = "z-qa", description = "z_qa_run")
 @TableName("z_qa_run")
 public class QaRunDO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @TableId(type = IdType.AUTO)
+    @BizField(name = "id", type = BizField.FieldType.INTEGER)
     private Long id;
     @TableField("run_code")
+    @BizField(name = "执行编码 (唯一, RUN-{yyyyMMddHHmmss}-{seq})", type = BizField.FieldType.STRING)
     private String runCode;
     @TableField("plan_id")
+    @BizField(name = "触发的计划 ID (手动=NULL)", type = BizField.FieldType.INTEGER)
     private Long planId;
     @TableField("suite_id")
+    @BizField(name = "触发的套件 ID (单套件时填)", type = BizField.FieldType.INTEGER)
     private Long suiteId;
+    @BizField(name = "name", type = BizField.FieldType.STRING)
     private String name;
     @TableField("trigger_type")
+    @BizField(name = "manual/cron/ci", type = BizField.FieldType.STRING)
     private String triggerType;
+    @BizField(name = "pending/running/success/failed/cancelled", type = BizField.FieldType.STRING)
     private String status;
     @TableField("total_steps")
+    @BizField(name = "totalSteps", type = BizField.FieldType.INTEGER)
     private Integer totalSteps;
     @TableField("passed_steps")
+    @BizField(name = "passedSteps", type = BizField.FieldType.INTEGER)
     private Integer passedSteps;
     @TableField("failed_steps")
+    @BizField(name = "failedSteps", type = BizField.FieldType.INTEGER)
     private Integer failedSteps;
     @TableField("duration_ms")
+    @BizField(name = "durationMs", type = BizField.FieldType.INTEGER)
     private Long durationMs;
     @TableField("started_at")
+    @BizField(name = "startedAt", type = BizField.FieldType.DATETIME)
     private Date startedAt;
     @TableField("finished_at")
+    @BizField(name = "finishedAt", type = BizField.FieldType.DATETIME)
     private Date finishedAt;
     @TableField("error_message")
+    @BizField(name = "errorMessage", type = BizField.FieldType.STRING)
     private String errorMessage;
     @TableField("trigger_user")
+    @BizField(name = "triggerUser", type = BizField.FieldType.STRING)
     private String triggerUser;
     /**
      * 执行环境 (FK 到 z_qa_env.code)
      */
     @TableField("env_code")
+    @BizField(name = "执行环境 (FK 到 z_qa_env.code)", type = BizField.FieldType.STRING)
     private String envCode;
     /**
      * 执行环境 baseUrl 快照
      */
     @TableField("env_base_url")
+    @BizField(name = "执行环境 baseUrl 快照", type = BizField.FieldType.STRING)
     private String envBaseUrl;
     /**
      * FEATURE052 Phase 4 CI 集成 — 完成后回调 URL
      */
     @TableField("callback_url")
+    @BizField(name = "FEATURE052 Phase 4 CI 集成 — 完成后回调 URL", type = BizField.FieldType.STRING)
     private String callbackUrl;
     /**
      * 中止请求标志。走 DB 而不是内存 flag:多实例下 abort 打到的实例可能不是跑这条 run 的实例，
      * 且内存 flag 无处回收。
      */
     @TableField("abort_requested")
+    @BizField(name = "abortRequested", type = BizField.FieldType.INTEGER)
     private Integer abortRequested;
     @TableField("tenant_code")
+    @BizField(name = "tenantCode", type = BizField.FieldType.STRING)
     private String tenantCode;
     @TableField("gmt_create")
+    @BizField(name = "gmtCreate", type = BizField.FieldType.DATETIME)
     private Date gmtCreate;
 
     public Long getId() {
@@ -236,3 +259,6 @@ public class QaRunDO implements Serializable {
         this.gmtCreate = gmtCreate;
     }
 }
+
+
+

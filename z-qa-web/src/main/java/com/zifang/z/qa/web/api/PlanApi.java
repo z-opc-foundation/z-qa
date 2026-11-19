@@ -1,6 +1,9 @@
 package com.zifang.z.qa.web.api;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.zifang.z.meta.api.annotation.BizApi;
+import com.zifang.z.meta.api.annotation.BizField;
+import com.zifang.z.meta.api.annotation.BizParam;
 import com.zifang.z.qa.admin.domain.entity.QaPlanDO;
 import com.zifang.z.qa.admin.domain.mapper.QaPlanMapper;
 import com.zifang.z.qa.web.request.QaPlanReq;
@@ -29,13 +32,15 @@ public class PlanApi {
     private QaPlanMapper planMapper;
 
     @GetMapping("/list")
+    @BizApi(summary = "list", description = "", tags = { "z-qa" })
     public QaResult<List<QaPlanResp>> list() {
         List<QaPlanDO> list = planMapper.selectList(new QueryWrapper<QaPlanDO>().orderByDesc("gmt_create"));
         return QaResult.ok(QaConverter.toList(list, QaPlanResp.class));
     }
 
     @GetMapping("/get")
-    public QaResult<QaPlanResp> get(@RequestParam Long id) {
+    @BizApi(summary = "get", description = "", tags = { "z-qa" })
+    public QaResult<QaPlanResp> get(@RequestParam @BizParam(name = "id", type = BizField.FieldType.INTEGER, description = "", position = BizParam.Position.QUERY) Long id) {
         QaPlanDO plan = planMapper.selectById(id);
         if (plan == null) {
             return QaResult.notFound("not found");
@@ -44,7 +49,8 @@ public class PlanApi {
     }
 
     @PostMapping("/add")
-    public QaResult<QaPlanResp> add(@RequestBody QaPlanReq req) {
+    @BizApi(summary = "add", description = "", tags = { "z-qa" })
+    public QaResult<QaPlanResp> add(@RequestBody @BizParam(name = "req", type = BizField.FieldType.STRING, description = "", position = BizParam.Position.BODY) QaPlanReq req) {
         QaPlanDO plan = new QaPlanDO();
         BeanUtils.copyProperties(req, plan);
         Date now = new Date();
@@ -58,7 +64,8 @@ public class PlanApi {
     }
 
     @PostMapping("/update")
-    public QaResult<Void> update(@RequestBody QaPlanReq req) {
+    @BizApi(summary = "update", description = "", tags = { "z-qa" })
+    public QaResult<Void> update(@RequestBody @BizParam(name = "req", type = BizField.FieldType.STRING, description = "", position = BizParam.Position.BODY) QaPlanReq req) {
         QaPlanDO plan = new QaPlanDO();
         BeanUtils.copyProperties(req, plan);
         plan.setGmtModified(new Date());
@@ -67,8 +74,12 @@ public class PlanApi {
     }
 
     @PostMapping("/remove")
-    public QaResult<Void> remove(@RequestParam Long id) {
+    @BizApi(summary = "remove", description = "", tags = { "z-qa" })
+    public QaResult<Void> remove(@RequestParam @BizParam(name = "id", type = BizField.FieldType.INTEGER, description = "", position = BizParam.Position.QUERY) Long id) {
         planMapper.deleteById(id);
         return QaResult.ok();
     }
 }
+
+
+

@@ -1,6 +1,9 @@
 package com.zifang.z.qa.web.api;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.zifang.z.meta.api.annotation.BizApi;
+import com.zifang.z.meta.api.annotation.BizField;
+import com.zifang.z.meta.api.annotation.BizParam;
 import com.zifang.z.qa.admin.domain.entity.QaCaseDO;
 import com.zifang.z.qa.admin.domain.mapper.QaCaseMapper;
 import com.zifang.z.qa.web.request.QaCaseReq;
@@ -28,7 +31,8 @@ public class CaseApi {
     private QaCaseMapper caseMapper;
 
     @PostMapping("/list")
-    public QaResult<List<QaCaseResp>> list(@RequestBody(required = false) QaCaseReq req) {
+    @BizApi(summary = "list", description = "", tags = { "z-qa" })
+    public QaResult<List<QaCaseResp>> list(@RequestBody(required = false) @BizParam(name = "req", type = BizField.FieldType.STRING, description = "", position = BizParam.Position.BODY) QaCaseReq req) {
         QueryWrapper<QaCaseDO> qw = new QueryWrapper<>();
         if (req != null) {
             String keyword = req.getKeyword();
@@ -49,7 +53,8 @@ public class CaseApi {
     }
 
     @PostMapping("/add")
-    public QaResult<QaCaseResp> add(@RequestBody QaCaseReq req) {
+    @BizApi(summary = "add", description = "", tags = { "z-qa" })
+    public QaResult<QaCaseResp> add(@RequestBody @BizParam(name = "req", type = BizField.FieldType.STRING, description = "", position = BizParam.Position.BODY) QaCaseReq req) {
         QaCaseDO c = new QaCaseDO();
         BeanUtils.copyProperties(req, c);
         if (c.getPriority() == null) {
@@ -66,7 +71,8 @@ public class CaseApi {
     }
 
     @PostMapping("/update")
-    public QaResult<QaCaseResp> update(@RequestBody QaCaseReq req) {
+    @BizApi(summary = "update", description = "", tags = { "z-qa" })
+    public QaResult<QaCaseResp> update(@RequestBody @BizParam(name = "req", type = BizField.FieldType.STRING, description = "", position = BizParam.Position.BODY) QaCaseReq req) {
         QaCaseDO c = new QaCaseDO();
         BeanUtils.copyProperties(req, c);
         c.setGmtModified(new Date());
@@ -75,8 +81,12 @@ public class CaseApi {
     }
 
     @PostMapping("/remove")
-    public QaResult<Void> remove(@RequestParam Long id) {
+    @BizApi(summary = "remove", description = "", tags = { "z-qa" })
+    public QaResult<Void> remove(@RequestParam @BizParam(name = "id", type = BizField.FieldType.INTEGER, description = "", position = BizParam.Position.QUERY) Long id) {
         caseMapper.deleteById(id);
         return QaResult.ok();
     }
 }
+
+
+

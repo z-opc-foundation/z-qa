@@ -1,6 +1,7 @@
 package com.zifang.z.qa.admin.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.zifang.z.meta.api.annotation.BizMethod;
 import com.zifang.z.qa.admin.domain.entity.QaRunDO;
 import com.zifang.z.qa.admin.domain.entity.QaScheduleDO;
 import com.zifang.z.qa.admin.domain.mapper.QaScheduleMapper;
@@ -84,6 +85,7 @@ public class QaScheduleServiceImpl implements QaScheduleService {
     }
 
     @Override
+    @BizMethod(name = "create", module = "z-qa", description = "", operation = BizMethod.Operation.CREATE)
     public Long create(QaScheduleDO schedule) {
         if (schedule.getEnabled() == null) schedule.setEnabled(1);
         schedule.setGmtCreate(new Date());
@@ -94,6 +96,7 @@ public class QaScheduleServiceImpl implements QaScheduleService {
     }
 
     @Override
+    @BizMethod(name = "update", module = "z-qa", description = "", operation = BizMethod.Operation.UPDATE)
     public void update(QaScheduleDO schedule) {
         schedule.setGmtModified(new Date());
         schedule.setNextRunTime(computeNextFire(schedule.getCronExpr(), new Date()));
@@ -101,11 +104,13 @@ public class QaScheduleServiceImpl implements QaScheduleService {
     }
 
     @Override
+    @BizMethod(name = "delete", module = "z-qa", description = "", operation = BizMethod.Operation.DELETE)
     public void delete(Long id) {
         scheduleMapper.deleteById(id);
     }
 
     @Override
+    @BizMethod(name = "toggle", module = "z-qa", description = "", operation = BizMethod.Operation.ACTION)
     public void toggle(Long id, boolean enabled) {
         QaScheduleDO s = scheduleMapper.selectById(id);
         if (s == null) return;
@@ -116,11 +121,13 @@ public class QaScheduleServiceImpl implements QaScheduleService {
     }
 
     @Override
+    @BizMethod(name = "list", module = "z-qa", description = "", operation = BizMethod.Operation.QUERY)
     public List<QaScheduleDO> list() {
         return scheduleMapper.selectList(new QueryWrapper<QaScheduleDO>().orderByDesc("gmt_create"));
     }
 
     @Override
+    @BizMethod(name = "get", module = "z-qa", description = "", operation = BizMethod.Operation.QUERY)
     public QaScheduleDO get(Long id) {
         return scheduleMapper.selectById(id);
     }
@@ -130,6 +137,7 @@ public class QaScheduleServiceImpl implements QaScheduleService {
      */
     @Scheduled(cron = "0 * * * * ?")
     @Override
+    @BizMethod(name = "每分钟扫描一次", module = "z-qa", description = "每分钟扫描一次.", operation = BizMethod.Operation.ACTION)
     public int scanAndTrigger() {
         Date now = new Date();
         List<QaScheduleDO> enabled = scheduleMapper.selectList(
@@ -202,3 +210,6 @@ public class QaScheduleServiceImpl implements QaScheduleService {
         }
     }
 }
+
+
+

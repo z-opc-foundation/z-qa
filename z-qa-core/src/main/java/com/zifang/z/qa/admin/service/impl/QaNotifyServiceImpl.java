@@ -1,5 +1,6 @@
 package com.zifang.z.qa.admin.service.impl;
 
+import com.zifang.z.meta.api.annotation.BizMethod;
 import com.zifang.z.msg.api.EmailMessage;
 import com.zifang.z.msg.api.MessageGateway;
 import com.zifang.z.msg.api.MessageSendResult;
@@ -79,6 +80,7 @@ public class QaNotifyServiceImpl implements QaNotifyService {
     }
 
     @Override
+    @BizMethod(name = "notifyRunFinished", module = "z-qa", description = "", operation = BizMethod.Operation.ACTION)
     public void notifyRunFinished(QaRunDO run, String notifyChannels, boolean notifyOnPass, boolean notifyOnFail) {
         // 只有 success 算通过:中止 cancelled 也是没跑成，按失败侧通知才不会被当成绿灯
         boolean pass = "success".equalsIgnoreCase(run.getStatus());
@@ -203,3 +205,6 @@ public class QaNotifyServiceImpl implements QaNotifyService {
         notifyLogMapper.insert(log0);
     }
 }
+
+
+

@@ -1,6 +1,9 @@
 package com.zifang.z.qa.web.api;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.zifang.z.meta.api.annotation.BizApi;
+import com.zifang.z.meta.api.annotation.BizField;
+import com.zifang.z.meta.api.annotation.BizParam;
 import com.zifang.z.qa.admin.domain.entity.QaSuiteDO;
 import com.zifang.z.qa.admin.domain.entity.QaSuiteStepDO;
 import com.zifang.z.qa.admin.domain.mapper.QaSuiteMapper;
@@ -35,8 +38,10 @@ public class SuiteApi {
     private QaSuiteStepMapper stepMapper;
 
     @GetMapping("/list")
-    public QaResult<List<QaSuiteResp>> list(@RequestParam(required = false) String keyword,
-                                            @RequestParam(required = false) String category) {
+    @BizApi(summary = "list", description = "", tags = { "z-qa" })
+    public QaResult<List<QaSuiteResp>> list(@RequestParam(required = false) @BizParam(name = "keyword", type = BizField.FieldType.STRING, description = "", position = BizParam.Position.QUERY) String keyword,
+                                            @RequestParam(required = false)
+                                            @BizParam(name = "category", type = BizField.FieldType.STRING, description = "", position = BizParam.Position.QUERY) String category) {
         QueryWrapper<QaSuiteDO> qw = new QueryWrapper<>();
         if (keyword != null && !keyword.isEmpty()) {
             qw.and(w -> w.like("code", keyword).or().like("name", keyword));
@@ -49,7 +54,8 @@ public class SuiteApi {
     }
 
     @GetMapping("/get")
-    public QaResult<QaSuiteResp> get(@RequestParam Long id) {
+    @BizApi(summary = "get", description = "", tags = { "z-qa" })
+    public QaResult<QaSuiteResp> get(@RequestParam @BizParam(name = "id", type = BizField.FieldType.INTEGER, description = "", position = BizParam.Position.QUERY) Long id) {
         QaSuiteDO suite = suiteMapper.selectById(id);
         if (suite == null) {
             return QaResult.notFound("not found");
@@ -58,7 +64,8 @@ public class SuiteApi {
     }
 
     @PostMapping("/add")
-    public QaResult<QaSuiteResp> add(@RequestBody QaSuiteReq req) {
+    @BizApi(summary = "add", description = "", tags = { "z-qa" })
+    public QaResult<QaSuiteResp> add(@RequestBody @BizParam(name = "req", type = BizField.FieldType.STRING, description = "", position = BizParam.Position.BODY) QaSuiteReq req) {
         QaSuiteDO suite = new QaSuiteDO();
         BeanUtils.copyProperties(req, suite);
         Date now = new Date();
@@ -75,7 +82,8 @@ public class SuiteApi {
     }
 
     @PostMapping("/update")
-    public QaResult<Void> update(@RequestBody QaSuiteReq req) {
+    @BizApi(summary = "update", description = "", tags = { "z-qa" })
+    public QaResult<Void> update(@RequestBody @BizParam(name = "req", type = BizField.FieldType.STRING, description = "", position = BizParam.Position.BODY) QaSuiteReq req) {
         QaSuiteDO suite = new QaSuiteDO();
         BeanUtils.copyProperties(req, suite);
         suite.setGmtModified(new Date());
@@ -84,19 +92,22 @@ public class SuiteApi {
     }
 
     @PostMapping("/remove")
-    public QaResult<Void> remove(@RequestParam Long id) {
+    @BizApi(summary = "remove", description = "", tags = { "z-qa" })
+    public QaResult<Void> remove(@RequestParam @BizParam(name = "id", type = BizField.FieldType.INTEGER, description = "", position = BizParam.Position.QUERY) Long id) {
         suiteMapper.deleteById(id);
         stepMapper.delete(new QueryWrapper<QaSuiteStepDO>().eq("suite_id", id));
         return QaResult.ok("删除成功", null);
     }
 
     @GetMapping("/steps")
-    public QaResult<List<QaSuiteStepResp>> steps(@RequestParam Long suiteId) {
+    @BizApi(summary = "steps", description = "", tags = { "z-qa" })
+    public QaResult<List<QaSuiteStepResp>> steps(@RequestParam @BizParam(name = "suiteId", type = BizField.FieldType.INTEGER, description = "", position = BizParam.Position.QUERY) Long suiteId) {
         return QaResult.ok(QaConverter.toList(stepMapper.selectBySuiteId(suiteId), QaSuiteStepResp.class));
     }
 
     @PostMapping("/steps/save")
-    public QaResult<Integer> saveSteps(@RequestParam Long suiteId, @RequestBody List<QaSuiteStepReq> steps) {
+    @BizApi(summary = "saveSteps", description = "", tags = { "z-qa" })
+    public QaResult<Integer> saveSteps(@RequestParam @BizParam(name = "suiteId", type = BizField.FieldType.INTEGER, description = "", position = BizParam.Position.QUERY) Long suiteId, @RequestBody @BizParam(name = "steps", type = BizField.FieldType.JSON, description = "", position = BizParam.Position.BODY) List<QaSuiteStepReq> steps) {
         stepMapper.delete(new QueryWrapper<QaSuiteStepDO>().eq("suite_id", suiteId));
         for (QaSuiteStepReq s : steps) {
             QaSuiteStepDO step = new QaSuiteStepDO();
@@ -111,3 +122,6 @@ public class SuiteApi {
         return QaResult.ok("保存成功", steps.size());
     }
 }
+
+
+

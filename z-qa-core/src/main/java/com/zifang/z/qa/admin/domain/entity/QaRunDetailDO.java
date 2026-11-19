@@ -4,86 +4,115 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.zifang.z.meta.api.annotation.BizField;
+import com.zifang.z.meta.api.annotation.BizModel;
 
 import java.io.Serializable;
 import java.util.Date;
 
-
+@BizModel(name = "z_qa_run_detail", module = "z-qa", description = "z_qa_run_detail")
 @TableName("z_qa_run_detail")
 public class QaRunDetailDO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @TableId(type = IdType.AUTO)
+    @BizField(name = "id", type = BizField.FieldType.INTEGER)
     private Long id;
     @TableField("run_id")
+    @BizField(name = "runId", type = BizField.FieldType.INTEGER)
     private Long runId;
     @TableField("step_no")
+    @BizField(name = "stepNo", type = BizField.FieldType.INTEGER)
     private Integer stepNo;
     @TableField("step_name")
+    @BizField(name = "stepName", type = BizField.FieldType.STRING)
     private String stepName;
+    @BizField(name = "method", type = BizField.FieldType.STRING)
     private String method;
     @TableField("request_url")
+    @BizField(name = "requestUrl", type = BizField.FieldType.STRING)
     private String requestUrl;
     @TableField("request_headers")
+    @BizField(name = "requestHeaders", type = BizField.FieldType.STRING)
     private String requestHeaders;
     @TableField("request_body")
+    @BizField(name = "requestBody", type = BizField.FieldType.STRING)
     private String requestBody;
     @TableField("response_status")
+    @BizField(name = "responseStatus", type = BizField.FieldType.INTEGER)
     private Integer responseStatus;
     @TableField("response_headers")
+    @BizField(name = "responseHeaders", type = BizField.FieldType.STRING)
     private String responseHeaders;
     @TableField("response_body")
+    @BizField(name = "responseBody", type = BizField.FieldType.STRING)
     private String responseBody;
     @TableField("variables_before")
+    @BizField(name = "执行前变量快照 JSON", type = BizField.FieldType.STRING)
     private String variablesBefore;
     @TableField("variables_after")
+    @BizField(name = "执行后变量快照 JSON", type = BizField.FieldType.STRING)
     private String variablesAfter;
     @TableField("extracted_vars")
+    @BizField(name = "本次提取的变量 JSON", type = BizField.FieldType.STRING)
     private String extractedVars;
     @TableField("assert_results")
+    @BizField(name = "断言结果 JSON", type = BizField.FieldType.STRING)
     private String assertResults;
+    @BizField(name = "pending/pass/fail/error/skip", type = BizField.FieldType.STRING)
     private String result;
     @TableField("error_message")
+    @BizField(name = "errorMessage", type = BizField.FieldType.STRING)
     private String errorMessage;
     @TableField("duration_ms")
+    @BizField(name = "durationMs", type = BizField.FieldType.INTEGER)
     private Long durationMs;
     @TableField("retry_count")
+    @BizField(name = "retryCount", type = BizField.FieldType.INTEGER)
     private Integer retryCount;
     /**
      * FEATURE052 §3.3 — Mock 端点编码
      */
     @TableField("mock_endpoint_code")
+    @BizField(name = "FEATURE052 §3.3 — Mock 端点编码", type = BizField.FieldType.STRING)
     private String mockEndpointCode;
     /**
      * FEATURE052 §3.3 — 模板请求 (变量替换前)
      */
     @TableField("template_request")
+    @BizField(name = "FEATURE052 §3.3 — 模板请求 (变量替换前)", type = BizField.FieldType.STRING)
     private String templateRequest;
     /**
      * FEATURE052 §3.3 — 变量提取过程明细
      */
     @TableField("extractions")
+    @BizField(name = "FEATURE052 §3.3 — 变量提取过程明细", type = BizField.FieldType.STRING)
     private String extractions;
     /**
      * FEATURE052 §3.3 — 目标模式: real / mock
      */
     @TableField("target_mode")
+    @BizField(name = "targetMode", type = BizField.FieldType.STRING)
     private String targetMode;
     /**
      * 计划 run 一次覆盖多个套件，明细必须能回溯到归属套件；step_no 在 run 内是全局序号，
      * 不再等于套件内的序号
      */
     @TableField("suite_id")
+    @BizField(name = "suiteId", type = BizField.FieldType.INTEGER)
     private Long suiteId;
     /**
      * 失败态推导出的缺陷分类 (system_defect / script_defect / env_data_defect)，通过时为 null
      */
     @TableField("defect_type")
+    @BizField(name = "defectType", type = BizField.FieldType.STRING)
     private String defectType;
     @TableField("tenant_code")
+    @BizField(name = "tenantCode", type = BizField.FieldType.STRING)
     private String tenantCode;
     @TableField("gmt_create")
+    @BizField(name = "gmtCreate", type = BizField.FieldType.DATETIME)
     private Date gmtCreate;
 
     public Long getId() {
@@ -302,3 +331,6 @@ public class QaRunDetailDO implements Serializable {
         this.defectType = defectType;
     }
 }
+
+
+

@@ -1,7 +1,7 @@
 package com.zifang.z.qa.admin.service.impl;
 
-
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.zifang.z.meta.api.annotation.BizMethod;
 import com.zifang.z.qa.admin.domain.entity.QaRunDO;
 import com.zifang.z.qa.admin.domain.entity.QaRunDetailDO;
 import com.zifang.z.qa.admin.domain.mapper.QaRunDetailMapper;
@@ -50,6 +50,7 @@ public class QaReportServiceImpl implements QaReportService {
     }
 
     @Override
+    @BizMethod(name = "renderHtml", module = "z-qa", description = "", operation = BizMethod.Operation.ACTION)
     public String renderHtml(String runCode) {
         Map<String, Object> chain = renderChain(runCode);
         if (chain == null) {
@@ -139,6 +140,7 @@ public class QaReportServiceImpl implements QaReportService {
     }
 
     @Override
+    @BizMethod(name = "renderChain", module = "z-qa", description = "", operation = BizMethod.Operation.ACTION)
     public Map<String, Object> renderChain(String runCode) {
         QaRunDO run = runMapper.selectOne(new QueryWrapper<QaRunDO>().eq("run_code", runCode));
         if (run == null) return null;
@@ -151,3 +153,6 @@ public class QaReportServiceImpl implements QaReportService {
         return out;
     }
 }
+
+
+
