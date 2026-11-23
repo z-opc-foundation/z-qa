@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from 'react';
-import {Alert, Button, Card, Form, Input, InputNumber, message, Modal, Select, Space, Table, Tag, Tooltip} from 'antd';
+import React, {useEffect, useRef, useState} from 'react';
+import {Alert, Button, Card, Form, Input, InputNumber, message, Modal, Popconfirm, Select, Space, Table, Tag, Tooltip} from 'antd';
 import {PlusOutlined, SaveOutlined} from '@ant-design/icons';
 import {suiteApi} from '../services/api';
 import {useLocation, useNavigate, useParams} from 'react-router-dom';
@@ -13,6 +13,11 @@ const SuiteSteps: React.FC<{ id?: string }> = ({id: idProp}) => {
     // 宿主可能不用 <Route :id> 分发（Z-Team 工作台按 pathname 直接渲染），id 由宿主传入。
     const {id: routeId} = useParams<{ id: string }>();
     const id = idProp ?? routeId;
+    // id 切换时卸载旧编辑器，表单、草稿、确认框和请求状态不能串到新套件。
+    return <SuiteStepsEditor key={id} id={id}/>;
+};
+
+const SuiteStepsEditor: React.FC<{ id?: string }> = ({id}) => {
     const location = useLocation();
     const navigate = useNavigate();
     const qaRoot = useQaBase();
@@ -21,16 +26,52 @@ const SuiteSteps: React.FC<{ id?: string }> = ({id: idProp}) => {
     const [editing, setEditing] = useState<any>(null);
     const [modalOpen, setModalOpen] = useState(false);
     const [form] = Form.useForm();
+    const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>('loading');
+    const [loadError, setLoadError] = useState('');
+    const [retry, setRetry] = useState(0);
+    const [dirty, setDirty] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [clearOpen, setClearOpen] = useState(false);
+    const active = useRef(false);
+    // 同一轮渲染中的重复点击也必须被拦截（包含表单校验期间）。
+    const savingRef = useRef(false);
+    const canWrite = () => active.current && loadState === 'ready' && !savingRef.current;
+    const inlineDisabled = loadState !== 'ready' || saving || modalOpen || clearOpen;
 
     useEffect(() => {
-        if (id) {
-            suiteApi.steps(parseInt(id)).then(r => {
-                setSteps(r?.content || []);
-            });
-        }
-    }, [id]);
+        let current = true;
+        active.current = true;
+        setLoadState('loading');
+        setLoadError('');
+        setSteps([]);
+        const load = async () => {
+            try {
+                if (!id || !Number.isSafeInteger(Number(id)) || Number(id) <= 0) {
+                    throw new Error('无效的套件 ID');
+                }
+                const res = await suiteApi.steps(Number(id));
+                // 业务失败或非数组响应不能当作空套件，否则全量保存可能误清空。
+                if (res?.success !== true || !Array.isArray(res.content)) {
+                    throw new Error(res?.msg || '步骤响应无效');
+                }
+                if (!current) return;
+                setSteps(res.content);
+                setLoadState('ready');
+            } catch (e: any) {
+                if (!current) return;
+                setLoadError(e?.message || '加载失败');
+                setLoadState('error');
+            }
+        };
+        void load();
+        return () => {
+            current = false;
+            active.current = false;
+        };
+    }, [id, retry]);
 
     const handleAdd = () => {
+        if (!canWrite() || modalOpen || clearOpen) return;
         setEditing(null);
         form.resetFields();
         form.setFieldsValue({
@@ -44,72 +85,118 @@ const SuiteSteps: React.FC<{ id?: string }> = ({id: idProp}) => {
     };
 
     const handleEdit = (s: any) => {
+        if (!canWrite() || modalOpen || clearOpen) return;
         setEditing(s);
+        form.resetFields();
         form.setFieldsValue(s);
         setModalOpen(true);
     };
 
+    // 接口全量替换：弹窗保存同时提交当前列表中的移动/删除草稿。
+    const persist = async (nextSteps: any[]) => {
+        const res = await suiteApi.saveSteps(Number(id), nextSteps);
+        if (res?.success !== true) throw new Error(res?.msg || '保存失败');
+        if (!active.current) return false;
+        setSteps(nextSteps);
+        setDirty(false);
+        message.success('保存成功');
+        return true;
+    };
+
     const handleSave = async () => {
+        if (!canWrite() || !modalOpen) return;
+        savingRef.current = true;
+        setSaving(true);
         try {
             const values = await form.validateFields();
-            if (editing) {
-                const newSteps = steps.map(s => s.step_no === editing.step_no ? {...values, step_no: editing.step_no} : s);
-                setSteps(newSteps);
-            } else {
-                const newStepNo = steps.length > 0 ? Math.max(...steps.map(s => s.step_no)) + 1 : 1;
-                setSteps([...steps, {...values, step_no: newStepNo}]);
-            }
-            setModalOpen(false);
+            if (!active.current) return;
+            const nextSteps = editing
+                ? steps.map(s => s.step_no === editing.step_no ? {...s, ...values, step_no: s.step_no} : s)
+                : [...steps, {
+                    execution_mode: 'api', ...values,
+                    step_no: steps.length > 0 ? Math.max(...steps.map(s => s.step_no)) + 1 : 1,
+                }];
+            if (await persist(nextSteps)) setModalOpen(false);
         } catch (e: any) {
-            if (e?.errorFields) return;
-            message.error('保存失败');
+            if (active.current && !e?.errorFields) message.error('保存失败: ' + (e?.message || e));
+        } finally {
+            if (active.current) {
+                savingRef.current = false;
+                setSaving(false);
+            }
         }
     };
 
     const handleDelete = (no: number) => {
+        if (!canWrite() || modalOpen || clearOpen) return;
         setSteps(steps.filter(s => s.step_no !== no).map((s, i) => ({...s, step_no: i + 1})));
+        setDirty(true);
     };
 
-    const handleMove = (idx: number, dir: 1 | -1) => {
+    const handleMove = (no: number, dir: 1 | -1) => {
+        if (!canWrite() || modalOpen || clearOpen) return;
+        const idx = steps.findIndex(s => s.step_no === no);
         const target = idx + dir;
-        if (target < 0 || target >= steps.length) return;
+        if (idx < 0 || target < 0 || target >= steps.length) return;
         const newSteps = [...steps];
         [newSteps[idx], newSteps[target]] = [newSteps[target], newSteps[idx]];
         setSteps(newSteps.map((s, i) => ({...s, step_no: i + 1})));
+        setDirty(true);
     };
 
-    const handleSaveAll = async () => {
+    const handleSaveAll = async (confirmClear = false) => {
+        if (!canWrite() || !dirty || modalOpen) return;
+        if (steps.length === 0 && !confirmClear) {
+            setClearOpen(true);
+            return;
+        }
+        savingRef.current = true;
+        setSaving(true);
         try {
-            await suiteApi.saveSteps(parseInt(id), steps);
-            message.success('保存成功');
+            if (await persist(steps)) setClearOpen(false);
         } catch (e: any) {
-            message.error('保存失败: ' + (e?.message || e));
+            if (active.current) message.error('保存失败: ' + (e?.message || e));
+        } finally {
+            if (active.current) {
+                savingRef.current = false;
+                setSaving(false);
+            }
         }
     };
 
     return (
         <div style={{padding: 0}}>
             <Card
-                title={`套件步骤 — ${suite?.name || id}`}
-                extra={
-                    <Space>
-                        <Button onClick={() => navigate(`${qaRoot}/suites`)}>返回</Button>
-                        <Button icon={<PlusOutlined/>} onClick={handleAdd}>新增步骤</Button>
-                        <Button type="primary" icon={<SaveOutlined/>} onClick={handleSaveAll}>保存全部</Button>
-                    </Space>
+                styles={{header: {padding: '12px 16px'}}}
+                title={
+                    <div style={{display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8}}>
+                        <span style={{flex: '1 1 160px', minWidth: 0, whiteSpace: 'normal', overflowWrap: 'anywhere'}}>
+                            {`套件步骤 — ${String(suite?.id) === id ? suite.name : id}`}
+                        </span>
+                        <Space wrap>
+                            {dirty && <Tag color="orange">未保存</Tag>}
+                            <Button disabled={saving} onClick={() => navigate(`${qaRoot}/suites`)}>返回</Button>
+                            <Button icon={<PlusOutlined/>} disabled={inlineDisabled} onClick={handleAdd}>新增步骤</Button>
+                            <Button type="primary" icon={<SaveOutlined/>} disabled={inlineDisabled || !dirty}
+                                    loading={saving && !modalOpen} onClick={() => handleSaveAll()}>保存全部</Button>
+                        </Space>
+                    </div>
                 }
             >
-                <Alert
-                    type="info"
-                    title="步骤按顺序执行, 变量从 ${VAR} 形式引用上一步提取的 JSONPath 结果."
+                {loadState === 'error' && <Alert
+                    type="error"
+                    title={`步骤加载失败：${loadError}`}
+                    action={<Button onClick={() => setRetry(n => n + 1)}>重试</Button>}
                     style={{marginBottom: 16}}
                     showIcon
-                />
+                />}
                 <Table
                     rowKey="step_no"
+                    scroll={{x: 1200}}
+                    loading={loadState === 'loading'}
                     dataSource={steps}
                     pagination={{
-                        pageSize: 20,
+                        defaultPageSize: 20,
                         showSizeChanger: true,
                         pageSizeOptions: ['10', '20', '50', '100'],
                         showTotal: (t) => `共 ${t} 条`,
@@ -147,15 +234,21 @@ const SuiteSteps: React.FC<{ id?: string }> = ({id: idProp}) => {
                         },
                         {
                             title: '操作', width: 200,
-                            render: (_, s, idx) => (
+                            render: (_, s) => (
                                 <Space>
                                     <Tooltip title="上移"><Button type="link" size="small"
-                                                                  onClick={() => handleMove(idx as number, -1)}>上移</Button></Tooltip>
+                                                                  disabled={inlineDisabled || s.step_no === steps[0]?.step_no}
+                                                                  onClick={() => handleMove(s.step_no, -1)}>上移</Button></Tooltip>
                                     <Tooltip title="下移"><Button type="link" size="small"
-                                                                  onClick={() => handleMove(idx as number, 1)}>下移</Button></Tooltip>
-                                    <Button type="link" size="small" onClick={() => handleEdit(s)}>编辑</Button>
-                                    <Button type="link" size="small" danger
-                                            onClick={() => handleDelete(s.step_no)}>删除</Button>
+                                                                  disabled={inlineDisabled || s.step_no === steps[steps.length - 1]?.step_no}
+                                                                  onClick={() => handleMove(s.step_no, 1)}>下移</Button></Tooltip>
+                                    <Button type="link" size="small" disabled={inlineDisabled}
+                                            onClick={() => handleEdit(s)}>编辑</Button>
+                                    <Popconfirm title="确认删除该步骤？" description="删除后需保存全部才会生效。"
+                                                okText="删除" cancelText="取消" okButtonProps={{danger: true}}
+                                                disabled={inlineDisabled} onConfirm={() => handleDelete(s.step_no)}>
+                                        <Button type="link" size="small" danger disabled={inlineDisabled}>删除</Button>
+                                    </Popconfirm>
                                 </Space>
                             )
                         },
@@ -166,11 +259,18 @@ const SuiteSteps: React.FC<{ id?: string }> = ({id: idProp}) => {
             <Modal
                 title={editing ? `编辑步骤 #${editing.step_no}` : '新增步骤'}
                 open={modalOpen}
-                onCancel={() => setModalOpen(false)}
+                onCancel={() => { if (!savingRef.current) setModalOpen(false); }}
                 onOk={handleSave}
+                okText="保存"
+                confirmLoading={saving}
+                okButtonProps={{disabled: loadState !== 'ready' || saving}}
+                cancelButtonProps={{disabled: saving}}
+                closable={!saving}
+                maskClosable={!saving}
+                keyboard={!saving}
                 destroyOnHidden
             >
-                <Form form={form} layout="vertical">
+                <Form form={form} layout="vertical" disabled={loadState !== 'ready' || saving}>
                     <Form.Item name="step_name" label="步骤名称" rules={[{required: true}]}>
                         <Input placeholder="如: 登录获取 token"/>
                     </Form.Item>
@@ -210,6 +310,22 @@ const SuiteSteps: React.FC<{ id?: string }> = ({id: idProp}) => {
                         <InputNumber min={0} max={5}/>
                     </Form.Item>
                 </Form>
+            </Modal>
+            <Modal
+                title="确认清空全部步骤？"
+                open={clearOpen}
+                onOk={() => handleSaveAll(true)}
+                onCancel={() => { if (!savingRef.current) setClearOpen(false); }}
+                okText="确认清空"
+                cancelText="取消"
+                confirmLoading={saving}
+                okButtonProps={{danger: true, disabled: loadState !== 'ready' || saving}}
+                cancelButtonProps={{disabled: saving}}
+                closable={!saving}
+                maskClosable={!saving}
+                keyboard={!saving}
+            >
+                保存空列表将删除该套件在服务端的全部步骤，此操作不可撤销。
             </Modal>
         </div>
     );

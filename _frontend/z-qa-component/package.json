@@ -22,7 +22,8 @@
   ],
   "scripts": {
     "build": "vite build",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:suite-steps": "node --test src/pages/SuiteSteps.test.mjs"
   },
   "dependencies": {
     "@yuku123/z-frontend-common": "^1.1.7",
