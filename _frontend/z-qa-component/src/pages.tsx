@@ -32,3 +32,7 @@ export const appMeta = { title: 'z-qa 测试平台', short: 'z-qa' };
 export const menuItems = [
     { key: '/z-qa', label: 'QA 测试' },
 ];
+
+// 子页菜单清单的真相在 ./menu（零依赖入口），这里只做再导出。
+export {QA_SUB_MENU, type QaSubMenuItem} from './menu';
+

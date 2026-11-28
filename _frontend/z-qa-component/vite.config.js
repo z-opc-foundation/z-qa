@@ -16,6 +16,8 @@ export default defineConfig({
             entry: {
                 index: path.resolve(__dirname, 'src/index.ts'),
                 pages: path.resolve(__dirname, 'src/pages.tsx'),
+                // 零依赖的菜单清单入口：宿主侧栏引用它，不把 QAApp 拖进主 chunk。
+                menu: path.resolve(__dirname, 'src/menu.ts'),
             },
             formats: ['es'],
         },

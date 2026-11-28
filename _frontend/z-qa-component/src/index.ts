@@ -1,6 +1,8 @@
 export * from './services/api';
 export * from './services/stepStatus';
 export { default as QAApp } from './QAApp';
+// 子页菜单清单（宿主侧栏引用，别在宿主手抄一份）。
+export {QA_SUB_MENU, type QaSubMenuItem} from './pages';
 export { default as ComponentDoc } from './pages/ComponentDoc';
 // 主壳接线用的统一名（lead 008 §7 约定：各包主入口统一导出 ComponentDocPage）。
 // 本包原先只导出了 ComponentDoc —— 主壳按统一名取会取不到 ⇒ 补一个别名导出。
